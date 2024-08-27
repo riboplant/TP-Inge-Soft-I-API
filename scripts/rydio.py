@@ -51,6 +51,15 @@ class TokenData(BaseModel):
 class UserInDB(User):
     hashed_password: str
 
+    # Modelo para la creación de usuarios (contiene la contraseña)
+class UserCreate(BaseModel):
+    name: str = Field(min_length=1)
+    rating: float = Field(ge=0, le=5)
+    email: str = Field(min_length=5, max_length=50)
+    password: str = Field(min_length=8)
+    disabled: bool or None = None
+
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -68,11 +77,11 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def get_user(db: Session = Depends(get_db), username: str = None):
+def get_user(db: Session, username: str = None):
     user_data = db.query(models.Users).filter(models.Users.name == username).first()
-    return UserInDB(**user_data)
+    return UserInDB(**user_data.__dict__)
 
-def authenticate_user(db: Session = Depends(get_db), username: str = None, password: str = None):
+def authenticate_user(db: Session, username: str = None, password: str = None):
     user = get_user(db, username)
     if not user:
         return False
@@ -94,7 +103,7 @@ def create_access_token(data: dict, expires_delta: timedelta or None = None):
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                          detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
     try:
@@ -124,14 +133,14 @@ async def get_current_active_user(current_user: UserInDB = Depends(get_current_u
 # A partir de aca son metodos para el OAUTH de usuarios
 
 @app.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(get_db, form_data.username, form_data.password)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Incorrect username or password", headers={"WWW-Authenticate": "Bearer"})
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires)
+        data={"sub": user.name}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/users/me/", response_model=User)
@@ -139,15 +148,15 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
 
-@app.get("/users/me/items")
-async def read_own_atributes(current_user: User = Depends(get_current_active_user)):
-    return [{"item_id": 1, "owner": current_user}]
-
 # Hasta aca
 
 @app.get("/rides")
 def read_api(db: Session = Depends(get_db)):
     return db.query(models.Rides).all()
+
+@app.get("/users")
+def read_api(db: Session = Depends(get_db)):
+    return db.query(models.Users).all()
 
 
 @app.post("/rides")
@@ -180,13 +189,24 @@ def delete_ride(ride_id: int, db: Session = Depends(get_db)):
 
 
 @app.post("/users/register")
-def register_user(user: User, db: Session = Depends(get_db)):
+def register_user(user: UserCreate, db: Session = Depends(get_db)):
     user_model = models.Users()
     user_model.name = user.name
     user_model.rating = user.rating
+    user_model.email = user.email
+    user_model.disabled = True
+
+    # Hashear la contraseña antes de almacenarla
+    hashed_password = get_password_hash(user.password)
+    user_model.hashed_password = hashed_password
 
     db.add(user_model)
     db.commit()
+    db.refresh(user_model)
+    return {"msg": "User registered successfully"} 
+
+
+
 
 @app.put("/users")
 def edit_user(user_id: int, user:User, db: Session = Depends(get_db)):
