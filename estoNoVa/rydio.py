@@ -33,7 +33,7 @@ def read_api(current_user: User = Depends(get_current_active_user), db: Session 
 
 @router.get("/users")
 def read_api(db: Session = Depends(get_db)):
-    return db.query(models.Users).all()
+    return db.query(models.Users).all() 
 
 
 @router.post("/rides")
