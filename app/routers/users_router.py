@@ -1,11 +1,25 @@
-from fastapi import APIRouter
+from fastapi import HTTPException, Depends, status, APIRouter
+from schemas.users_schemas import User, UserCreate, UserInDB, Token, TokenData
+import database.models.users_models as models
+from database.connect import engine, SessionLocal
+from sqlalchemy.orm import Session
+import sys
+
+sys.path.append('..')
 
 router = APIRouter(
     prefix="/users",
     tags=["users"],
 )
 
+def get_db():
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
 
+models.Base.metadata.create_all(bind=engine)
 #registro
 #login
 
