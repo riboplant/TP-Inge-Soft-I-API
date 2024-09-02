@@ -8,6 +8,8 @@ class Rides(Base):
     ride_id = Column(Integer, primary_key=True, index=True)
     ubication_from = Column(String)
     ubication_to = Column(String)
+    city_from = Column(String)
+    city_to = Column(String)
     description = Column(String)
     car_model = Column(String)
     car_plate = Column(String)

@@ -5,6 +5,8 @@ class Ride(BaseModel):
     ride_id: int = Field(ge=0)
     ubicationFrom: str = Field(min_length=1, max_length=100)
     ubicationTo: str = Field(min_length=1, max_length=100)
+    city_from: str = Field(min_length=1, max_length=100)
+    city_to: str = Field(min_length=1, max_length=100)
     description: str = Field(min_length=1, max_length=300)
     carModel: str = Field(min_length=1, max_length=50)
     carPlate: str = Field(min_length=1, max_length=10)
