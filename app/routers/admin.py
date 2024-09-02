@@ -39,22 +39,34 @@ def read_api(db: Session = Depends(get_db)):
 
 @router.post("/rides")
 def create_ride(ride: Ride, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    ride_model = ride.Rides()
+    ride_model = rides_models.Rides()
     ride_model.ubication_from = ride.ubicationFrom
     ride_model.ubication_to = ride.ubicationTo
     ride_model.description = ride.description
     ride_model.car_model = ride.carModel
     ride_model.car_plate = ride.carPlate
-    ride_model.price = ride.price
+    ride_model.price_person = ride.price_person
+    ride_model.price_small_package = ride.price_small_package
+    ride_model.price_medium_package = ride.price_medium_package
+    ride_model.price_large_package = ride.price_large_package
+    ride_model.date = ride.date
+    ride_model.start_minimum_time = ride.start_minimum_time
+    ride_model.start_maximum_time = ride.start_maximum_time
+    ride_model.real_start_time = ride.real_start_time
+    ride_model.real_end_time = ride.real_end_time
+    ride_model.driver_id = ride.driver_id
+
 
     db.add(ride_model)
     db.commit()
+    db.refresh(ride_model)
 
+    return ride_model
 
 @router.delete("/rides")
 def delete_ride(ride_id: int, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
 
-    ride_model = db.query(rides_models.Rides).filter(rides_models.Rides.id == ride_id).first()
+    ride_model = db.query(rides_models.Rides).filter(rides_models.Rides.ride_id == ride_id).first()
 
     if ride_model is None:
         raise HTTPException(
@@ -62,13 +74,14 @@ def delete_ride(ride_id: int, current_user: User = Depends(get_current_active_us
             detail=f"ID {ride_id} : Does not exist"
         )
     
-    db.query(rides_models.Rides).filter(rides_models.Rides.id == ride_id).delete()
+    db.query(rides_models.Rides).filter(rides_models.Rides.ride_id == ride_id).delete()
     db.commit()
 
 
 @router.put("/users")
 def edit_user(user_id: int, user:User, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    user_model = db.query(users_models.Users).filter(users_models.Users.id == user_id).first()
+    # No es posible editar la password o el user_id pero eso esta bien por ahora
+    user_model = db.query(users_models.Users).filter(users_models.Users.user_id == user_id).first()
 
     if user_model is None:
         raise HTTPException(
@@ -77,7 +90,12 @@ def edit_user(user_id: int, user:User, current_user: User = Depends(get_current_
         )
     
     user_model.name = user.name
-    user_model.rating = user.rating
+    user_model.user_rating = user.user_rating
+    user_model.email = user.email
+    user_model.address = user.address
+    user_model.dni = user.dni
+    user_model.status = user.status
+    user_model.photo_id = user.photo_id
 
     db.add(user_model)
     db.commit()
