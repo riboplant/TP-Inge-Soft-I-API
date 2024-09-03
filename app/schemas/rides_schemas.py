@@ -4,13 +4,13 @@ from datetime import date, time
 
 """ Schemas with all info """
 class Ride(BaseModel):
-    ride_id: int = Field(ge=0)
+    ride_id: str = Field(le=32)
     ubicationFrom: str = Field(min_length=1, max_length=100)
     ubicationTo: str = Field(min_length=1, max_length=100)
     city_from: str = Field(min_length=1, max_length=100)
     city_to: str = Field(min_length=1, max_length=100)
     carPlate: str = Field(min_length=1, max_length=10)
-    driver_id: int = Field(ge=0)
+    driver_id: str = Field(le=32)
     date: str = Field(min_length=8, max_length=10)
     start_minimum_time: str = Field(min_length=7, max_length=14)
     start_maximum_time: str = Field(min_length=7, max_length=14)
@@ -18,8 +18,8 @@ class Ride(BaseModel):
     real_end_time: str = Field(min_length=7, max_length=14)
 
 class Carry(BaseModel):
-    ride_id: int = Field(ge=0)
-    user_id: int = Field(ge=0)
+    ride_id: str = Field(le=32)
+    user_id: str = Field(le=32)
     persons: int = Field(ge=0)
     small_packages: int = Field(ge=0)
     medium_packages: int = Field(ge=0)
@@ -27,7 +27,7 @@ class Carry(BaseModel):
 
 
 class Price(BaseModel):
-    ride_id: int = Field(gt=0)
+    ride_id: str = Field(le=32)
     price_person: int = Field(gt=0)
     price_small_package: int = Field(gt=0)
     price_medium_package: int = Field(gt=0)
@@ -72,7 +72,7 @@ class searchRideForPerson(searchRideForPackage):
 
 
 class rideToReturn(BaseModel):
-    rideId: int 
+    rideId: str = Field(le=32)
     citynFrom: str = Field(min_length=1, max_length=100)
     cityTo: str = Field(min_length=1, max_length=100)
     driver: str = Field(min_length=1, max_length=100)
@@ -88,7 +88,7 @@ class rideDetailToReturn(rideToReturn):
     availableSpaceLargeLuggage: int = Field(ge=0)
     carModel: str = Field(min_length=1, max_length=50)
     carPlate: str = Field(min_length=1, max_length=10)
-    driver_id: int = Field(ge=0)
+    driver_id: str = Field(le=32)
     price_person: int = Field(gt=0)
     price_small_package: int = Field(gt=0)
     price_medium_package: int = Field(gt=0)

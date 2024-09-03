@@ -1,10 +1,10 @@
-from sqlalchemy import Column, Integer, String, Float, Boolean
+from sqlalchemy import Column, Integer, String, Float, Boolean, Uuid
 from database.connect import Base
 
 class Users(Base):
     __tablename__ = "users"
 
-    user_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, primary_key=True, index=True)
     name = Column(String)
     rider_rating = Column(Float)
     email = Column(String)
@@ -18,10 +18,10 @@ class Users(Base):
 class Drivers(Base):
     __tablename__ = "drivers"
 
-    user_id = Column(Integer)
+    user_id = Column(String)
     driving_license = Column(Integer)
     driver_rating = Column(Float)
-    driver_id = Column(Integer, primary_key=True, index=True)
+    driver_id = Column(String, primary_key=True, index=True)
     status = Column(String)
 
 class Vehicle(Base):
@@ -35,7 +35,7 @@ class Vehicle(Base):
 class Drives(Base):
     __tablename__ = "drives"
 
-    driver_id = Column(Integer, primary_key=True, index=True)
+    driver_id = Column(String, primary_key=True, index=True)
     plate = Column(String, primary_key=True, index=True)
 
 

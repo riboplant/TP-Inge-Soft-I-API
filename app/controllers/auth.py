@@ -7,6 +7,7 @@ import database.models.users_models as models
 from database.connect import engine
 from config import AuthSettings as settings
 from services.auth_controller import get_db, get_current_active_user, create_access_token, authenticate_user, get_password_hash
+from uuid import uuid4
 import sys
 sys.path.append('..')
 
@@ -40,7 +41,7 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     user_model = models.Users()
     user_model.name = user.name
-    user_model.user_id = user.user_rating
+    user_model.user_id = str(uuid4())
     user_model.email = user.email
     user_model.disabled = False
 

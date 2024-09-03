@@ -5,13 +5,13 @@ from database.connect import Base
 class Rides(Base):
     __tablename__ = "rides"
 
-    ride_id = Column(Integer, primary_key=True, index=True)
+    ride_id = Column(String, primary_key=True, index=True)
     ubication_from = Column(String)
     ubication_to = Column(String)
     city_from = Column(String)
     city_to = Column(String)
     car_plate = Column(String)
-    driver_id = Column(Integer)
+    driver_id = Column(String)
     date = Column(Date)
     start_minimum_time = Column(Time)
     start_maximum_time = Column(Time)
@@ -22,8 +22,8 @@ class Rides(Base):
 class Carrys(Base):
     __tablename__ = "carrys"
 
-    ride_id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, primary_key=True, index=True)
+    ride_id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, primary_key=True, index=True)
     persons = Column(Integer)
     small_packages = Column(Integer)
     medium_packages = Column(Integer)
@@ -33,7 +33,7 @@ class Carrys(Base):
 class Prices(Base):
     __tablename__ = "prices"
 
-    ride_id = Column(Integer, primary_key=True, index=True)
+    ride_id = Column(String, primary_key=True, index=True)
     price_person = Column(Float)
     price_small_package = Column(Float)
     price_medium_package = Column(Float)
