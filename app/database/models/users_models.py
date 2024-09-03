@@ -36,6 +36,6 @@ class Drives(Base):
     __tablename__ = "drives"
 
     driver_id = Column(Integer, primary_key=True, index=True)
-    plate = Column(String)
+    plate = Column(String, primary_key=True, index=True)
 
 

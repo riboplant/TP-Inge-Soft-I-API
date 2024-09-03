@@ -60,3 +60,7 @@ class Vehicle(BaseModel):
 class Drive(BaseModel):
     driver_id: int = Field(ge=0)
     plate: str = Field()
+
+
+""" Specefic schemas for endpoint purposes """
+

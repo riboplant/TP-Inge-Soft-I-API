@@ -3,7 +3,7 @@ from schemas.users_schemas import User
 from schemas.rides_schemas import Ride
 from database.connect import engine, SessionLocal
 from sqlalchemy.orm import Session
-from routers.auth import get_current_active_user
+from controllers.auth import get_current_active_user
 from database.models import users_models, rides_models
 from database.connect import Base
 import sys
@@ -47,10 +47,6 @@ def create_ride(ride: Ride, current_user: User = Depends(get_current_active_user
     ride_model.description = ride.description
     ride_model.car_model = ride.carModel
     ride_model.car_plate = ride.carPlate
-    ride_model.price_person = ride.price_person
-    ride_model.price_small_package = ride.price_small_package
-    ride_model.price_medium_package = ride.price_medium_package
-    ride_model.price_large_package = ride.price_large_package
     ride_model.date = ride.date
     ride_model.start_minimum_time = ride.start_minimum_time
     ride_model.start_maximum_time = ride.start_maximum_time

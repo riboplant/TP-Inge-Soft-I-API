@@ -6,7 +6,7 @@ from schemas.users_schemas import User, UserInDB, UserCreate, Token, TokenData
 import database.models.users_models as models
 from database.connect import engine
 from config import AuthSettings as settings
-from controllers.auth_controller import get_db, get_current_active_user, create_access_token, authenticate_user, get_password_hash
+from services.auth_controller import get_db, get_current_active_user, create_access_token, authenticate_user, get_password_hash
 import sys
 sys.path.append('..')
 
@@ -50,5 +50,5 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
     db.add(user_model)
     db.commit()
-    db.refresh(user_model)
+    db.refresh(user_model)    
     return {"msg": "User registered successfully"} 
