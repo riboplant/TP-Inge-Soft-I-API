@@ -1,9 +1,9 @@
 from fastapi import HTTPException, Depends, status, APIRouter
-from schemas.users_schemas import User, UserCreate, UserInDB, Token, TokenData
-from database.models import users_models, rides_models
-from database.connect import engine, SessionLocal, Base
+from app.schemas.users_schemas import User, UserCreate, UserInDB, Token, TokenData
+from app.database.models import users_models, rides_models
+from app.database.connect import engine, SessionLocal, Base
 from sqlalchemy.orm import Session
-from services.auth_controller import get_current_active_user
+from app.services.auth_controller import get_current_active_user
 import sys
 
 sys.path.append('..')

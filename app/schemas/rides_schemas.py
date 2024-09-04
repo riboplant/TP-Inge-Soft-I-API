@@ -73,7 +73,7 @@ class searchRideForPerson(searchRideForPackage):
 
 class rideToReturn(BaseModel):
     rideId: int 
-    citynFrom: str = Field(min_length=1, max_length=100)
+    cityFrom: str = Field(min_length=1, max_length=100)
     cityTo: str = Field(min_length=1, max_length=100)
     driver: str = Field(min_length=1, max_length=100)
     driver_photo: str = Field(min_length=1, max_length=100)

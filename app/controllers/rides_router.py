@@ -1,13 +1,13 @@
 from fastapi import HTTPException, Depends, status, APIRouter
-from controllers.auth import get_current_active_user
-from schemas.rides_schemas import Ride, RideCreate, PriceSet, searchRideForPackage,searchRideForPerson
-from schemas.users_schemas import User
-from database.models.rides_models import Rides, Prices
-from database.models.users_models import Users
+from app.controllers.auth import get_current_active_user
+from app.schemas.rides_schemas import Ride, RideCreate, PriceSet, searchRideForPackage,searchRideForPerson
+from app.schemas.users_schemas import User
+from app.database.models.model import *
 from sqlalchemy.orm import Session
-from database.connect import Base, engine, SessionLocal
-from services import rides_controller
-
+from app.database.connect import Base, engine, SessionLocal
+from app.services import rides_controller
+from datetime import date
+from pydantic import Field
 
 router = APIRouter(
     prefix="/rides",
@@ -24,15 +24,14 @@ def get_db():
 Base.metadata.create_all(bind=engine)
 
 #buscar viajes para personas
-#hago un post porque hay tantos campos que puede que no entre en el query string
-@router.post("/people") 
-async def get_people_ride(parameters: searchRideForPerson):
-    return rides_controller.get_people_ride(parameters) 
+@router.get("/people") 
+async def get_people_ride(cityFrom: str, cityTo: str, date: date, persons:  int , samllPackages: int , mediumPackages: int, largePackages: int):
+    return rides_controller.get_people_ride(cityFrom, cityTo, date, persons, samllPackages, mediumPackages, largePackages) 
 
 #esto es para buscar viajes para paquetes
-@router.post("/package")
-async def get_package_ride(parameters: searchRideForPackage):
-    return rides_controller.get_package_ride(parameters)
+@router.get("/package")
+async def get_package_ride(cityFrom: str, cityTo: str, date: date, samllPackages: int , mediumPackages: int , largePackages: int ):
+    return rides_controller.get_package_ride(cityFrom, cityTo, date, samllPackages, mediumPackages, largePackages)
 
 
 @router.get("/create")#tiene que estar logueado

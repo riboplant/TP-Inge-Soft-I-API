@@ -1,0 +1,14 @@
+/d
+\d
+select * from drives
+;
+\c defaultdb 
+\dt
+select * from carrys
+;
+select * from users
+;
+select * from rides;
+\dt
+/s drives
+\s drives

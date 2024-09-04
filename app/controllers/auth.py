@@ -2,11 +2,12 @@ from datetime import timedelta
 from fastapi.security import  OAuth2PasswordRequestForm
 from fastapi import HTTPException, Depends, status, APIRouter
 from sqlalchemy.orm import Session
-from schemas.users_schemas import User, UserInDB, UserCreate, Token, TokenData
-import database.models.users_models as models
-from database.connect import engine
-from config import AuthSettings as settings
-from services.auth_controller import get_db, get_current_active_user, create_access_token, authenticate_user, get_password_hash
+from app.schemas.users_schemas import User, UserInDB, UserCreate, Token, TokenData
+from app.database.models.model import *
+from app.database.connect import engine
+import app.database.models.model as models
+from app.config import AuthSettings as settings
+from app.services.auth_controller import get_db, get_current_active_user, create_access_token, authenticate_user, get_password_hash
 import sys
 sys.path.append('..')
 
@@ -38,7 +39,7 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 
 @router.post("/users/register")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    user_model = models.Users()
+    user_model = Users()
     user_model.name = user.name
     user_model.user_id = user.user_rating
     user_model.email = user.email
