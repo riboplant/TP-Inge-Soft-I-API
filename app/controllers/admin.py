@@ -10,6 +10,10 @@ from uuid import uuid4
 import sys
 sys.path.append('..')
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)  
+
 Base.metadata.create_all(bind=engine)
 
 
@@ -50,6 +54,7 @@ def add_user(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.get("/rides")
 def read_api(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    print("Recibi ride")
     return db.query(rides_models.Rides).all()
 
 @router.get("/users")
@@ -58,26 +63,31 @@ def read_api(db: Session = Depends(get_db)):
 
 
 @router.post("/rides")
-def create_ride(ride: Ride, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+def create_ride(ride: Ride ,current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    
+    print("Recibi el ride y entro a la funcion")
+
     ride_model = rides_models.Rides()
+    ride_model.ride_id = ride.ride_id
+    ride_model.driver_id = ride.driver_id
+    ride_model.car_plate = ride.carPlate
     ride_model.ubication_from = ride.ubicationFrom
     ride_model.ubication_to = ride.ubicationTo
     ride_model.city_from = ride.city_from
     ride_model.city_to = ride.city_to
-    ride_model.description = ride.description
-    ride_model.car_model = ride.carModel
-    ride_model.car_plate = ride.carPlate
-    ride_model.date = ride.date
+    ride_model.ride_date = ride.ride_date
     ride_model.start_minimum_time = ride.start_minimum_time
     ride_model.start_maximum_time = ride.start_maximum_time
     ride_model.real_start_time = ride.real_start_time
     ride_model.real_end_time = ride.real_end_time
-    ride_model.driver_id = ride.driver_id
 
+    print("Cree el modelo y le puse la info del recibido")
 
     db.add(ride_model)
     db.commit()
     db.refresh(ride_model)
+
+    print("Se agrego a la base de datos")
 
     return ride_model
 
