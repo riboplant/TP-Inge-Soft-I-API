@@ -3,8 +3,8 @@ from datetime import date, time, timedelta
 import random
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.database.connect import SessionLocal
-from app.database.models.model import Users, Vehicles,Drivers,Rides,Carrys,Prices
+from database.connect import SessionLocal
+from database.models.model import Users, Vehicles,Drivers,Rides,Carrys,Prices
 
 session = SessionLocal()
 

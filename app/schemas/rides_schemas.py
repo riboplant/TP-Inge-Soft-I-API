@@ -4,18 +4,18 @@ from datetime import date, time
 
 """ Schemas with all info """
 class Ride(BaseModel):
-    ride_id: str = Field(le=32)
-    ubicationFrom: str = Field(min_length=1, max_length=100)
-    ubicationTo: str = Field(min_length=1, max_length=100)
-    city_from: str = Field(min_length=1, max_length=100)
-    city_to: str = Field(min_length=1, max_length=100)
-    carPlate: str = Field(min_length=1, max_length=10)
-    driver_id: str = Field(le=32)
-    date: str = Field(min_length=8, max_length=10)
-    start_minimum_time: str = Field(min_length=7, max_length=14)
-    start_maximum_time: str = Field(min_length=7, max_length=14)
-    real_start_time: str = Field(min_length=7, max_length=14)
-    real_end_time: str = Field(min_length=7, max_length=14)
+    ride_id: str# = Field(le=32)
+    ubicationFrom: Optional[str] = None#str = Field(min_length=1, max_length=100)
+    ubicationTo: Optional[str] = None#str = Field(min_length=1, max_length=100)
+    city_from: Optional[str] = None#str = Field(min_length=1, max_length=100)
+    city_to: Optional[str] = None#str = Field(min_length=1, max_length=100)
+    carPlate: str #= Field(min_length=1, max_length=10)
+    driver_id: str #= Field(le=32)
+    ride_date: Optional[date] = None#date = Field()
+    start_minimum_time:  Optional[time] = None#time = Field()
+    start_maximum_time: Optional[time] = None#time = Field()
+    real_start_time: Optional[time] = None#time = Field()
+    real_end_time: Optional[time] = None#time = Field()
 
 class Carry(BaseModel):
     ride_id: str = Field(le=32)
@@ -38,16 +38,13 @@ class Price(BaseModel):
 
 
 class RideCreate(BaseModel):
-    ubicationFrom: str = Field(min_length=1, max_length=100)
-    ubicationTo: str = Field(min_length=1, max_length=100)
-    city_from: str = Field(min_length=1, max_length=100)
-    city_to: str = Field(min_length=1, max_length=100)
-    carModel: str = Field(min_length=1, max_length=50)
-    carPlate: str = Field(min_length=1, max_length=10)
-    date: str = Field(min_length=8, max_length=10)
-    start_minimum_time: str = Field(min_length=7, max_length=14)
-    start_maximum_time: str = Field(min_length=7, max_length=14)
-
+    ubicationFrom: Optional[str] = None
+    ubicationTo: Optional[str] = None
+    city_from: Optional[str] = None
+    city_to: Optional[str] = None
+    ride_date: Optional[date] = None
+    start_minimum_time:  Optional[time] = None
+    start_maximum_time: Optional[time] = None
 
 class PriceSet(BaseModel):
     price_person: int = Field(gt=0)

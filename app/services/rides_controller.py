@@ -1,8 +1,8 @@
-from app.schemas.rides_schemas import searchRideForPackage,searchRideForPerson,rideToReturn,rideDetailToReturn
+from schemas.rides_schemas import searchRideForPackage,searchRideForPerson,rideToReturn,rideDetailToReturn
 from datetime import date
 from pydantic import Field
-from app.database.connect import engine, SessionLocal
-from app.database.models.model import *
+from database.connect import engine, SessionLocal
+from database.models.model import *
 from sqlalchemy import and_
 
 
