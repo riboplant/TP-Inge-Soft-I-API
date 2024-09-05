@@ -9,6 +9,8 @@ import app.database.models.model as models
 from app.config import AuthSettings as settings
 from app.services.auth_controller import get_db, get_current_active_user, create_access_token, authenticate_user, get_password_hash
 import sys
+from uuid import uuid4
+
 sys.path.append('..')
 
 
@@ -41,7 +43,7 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     user_model = Users()
     user_model.name = user.name
-    user_model.user_id = user.user_rating
+    user_model.user_id = str(uuid4())
     user_model.email = user.email
     user_model.disabled = False
 

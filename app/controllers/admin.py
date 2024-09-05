@@ -1,5 +1,5 @@
 from fastapi import HTTPException, Depends, status, APIRouter
-from app.schemas.users_schemas import User
+from app.schemas.users_schemas import User, UserCreate
 from app.schemas.rides_schemas import Ride
 from app.database.connect import engine, SessionLocal
 from sqlalchemy.orm import Session
@@ -7,6 +7,8 @@ from app.controllers.auth import get_current_active_user
 from app.database.models import models
 from app.database.connect import Base
 import sys
+from uuid import uuid4
+
 sys.path.append('..')
 
 Base.metadata.create_all(bind=engine)
@@ -27,6 +29,25 @@ router = APIRouter(
     prefix="/admin",
     tags=["admin"]
 )
+
+@router.post("/test")
+def add_user(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = User(
+        user_id=str(uuid4()),
+        name=user.name,
+        rider_rating=user.rider_rating,
+        email=user.email,
+        hashed_password=user.password,  # Recuerda hashear la contraseña aquí
+        disabled=user.disabled,
+        address=user.address,
+        dni=user.dni,
+        status=user.status,
+        photo_id=user.photo_id,
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
 @router.get("/rides")
 def read_api(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
