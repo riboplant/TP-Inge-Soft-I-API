@@ -4,7 +4,7 @@ import random
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database.connect import SessionLocal
-from database.models.model import Users, Vehicles,Drivers,Rides,Carrys,Prices
+from app.database.models import Users, Vehicles,Drivers,Rides,Carrys,Prices
 
 session = SessionLocal()
 

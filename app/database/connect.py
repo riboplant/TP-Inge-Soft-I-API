@@ -1,8 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
-from config import DBSettings as settings
 from sqlalchemy.ext.declarative import declarative_base
+
+from config import DBSettings as settings
+
 
 
 
@@ -26,3 +28,11 @@ Base = declarative_base()
 engine = get_engine_from_settings()
 
 SessionLocal = sessionmaker( autocommit=False,  autoflush=False,  bind=engine )
+
+
+def get_db():
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()

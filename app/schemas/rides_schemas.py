@@ -23,7 +23,7 @@ class Carry(BaseModel):
     persons: int = Field(ge=0)
     small_packages: int = Field(ge=0)
     medium_packages: int = Field(ge=0)
-    large_Packages: int = Field(ge=0)
+    large_packages: int = Field(ge=0)
 
 
 class Price(BaseModel):
@@ -47,44 +47,44 @@ class RideCreate(BaseModel):
     start_maximum_time: Optional[time] = None
 
 class PriceSet(BaseModel):
-    price_person: int = Field(gt=0)
-    price_small_package: int = Field(gt=0)
-    price_medium_package: int = Field(gt=0)
-    price_large_package: int = Field(gt=0)
+    price_person: float = Field(gt=0)
+    price_small_package: float = Field(gt=0)
+    price_medium_package: float = Field(gt=0)
+    price_large_package: float = Field(gt=0)
 
 class searchRideForPackage(BaseModel):
-    ubicationFrom: str = Field(min_length=1, max_length=100)
-    ubicationTo: str = Field(min_length=1, max_length=100)
-    cityFrom: str = Field(min_length=1, max_length=100)
-    cityTo: str = Field(min_length=1, max_length=100)
+    ubication_from: str = Field(min_length=1, max_length=100)
+    ubication_to: str = Field(min_length=1, max_length=100)
+    city_from: str = Field(min_length=1, max_length=100)
+    city_to: str = Field(min_length=1, max_length=100)
     date: date
-    numberSmallLuggage: int = Field(ge=0)
-    numberLargeLuggage: int = Field(ge=0)
-    numberMediumLuggage: int = Field(ge=0)
+    number_small_luggage: int = Field(ge=0)
+    number_large_luggage: int = Field(ge=0)
+    number_medium_luggage: int = Field(ge=0)
 
 
 
 class searchRideForPerson(searchRideForPackage):
-    numberPeople: int = Field(ge=1)
+    number_people: int = Field(ge=1)
 
 
 class rideToReturn(BaseModel):
-    rideId: str = Field(le=32)
-    citynFrom: str = Field(min_length=1, max_length=100)
-    cityTo: str = Field(min_length=1, max_length=100)
-    driver: str = Field(min_length=1, max_length=100)
+    ride_id: str = Field(le=32)
+    city_from: str = Field(min_length=1, max_length=100)
+    city_to: str = Field(min_length=1, max_length=100)
+    driver_name: str = Field(min_length=1, max_length=100)
     driver_photo: str = Field(min_length=1, max_length=100)
     price: float = Field(ge=0)
     date: date
 
 class rideDetailToReturn(rideToReturn):
 
-    availableSpacePersons: int = Field(ge=0)
-    availableSpaceSmallLuggage: int = Field(ge=0)
-    availableSpaceMediumLuggage: int = Field(ge=0)
-    availableSpaceLargeLuggage: int = Field(ge=0)
-    carModel: str = Field(min_length=1, max_length=50)
-    carPlate: str = Field(min_length=1, max_length=10)
+    available_space_persons: int = Field(ge=0)
+    available_space_small_luggage: int = Field(ge=0)
+    available_space_medium_luggage: int = Field(ge=0)
+    available_space_large_luggage: int = Field(ge=0)
+    car_model: str = Field(min_length=1, max_length=50)
+    car_plate: str = Field(min_length=1, max_length=10)
     driver_id: str = Field(le=32)
     price_person: int = Field(gt=0)
     price_small_package: int = Field(gt=0)

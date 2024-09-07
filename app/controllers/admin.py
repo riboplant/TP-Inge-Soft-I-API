@@ -1,32 +1,17 @@
 from fastapi import HTTPException, Depends, status, APIRouter
-from schemas.users_schemas import User, UserCreate
-from schemas.rides_schemas import Ride
-from database.connect import engine, SessionLocal
 from sqlalchemy.orm import Session
-from controllers.auth import get_current_active_user
-from database.models import models
-from database.connect import Base
-import sys
 from uuid import uuid4
-
-sys.path.append('..')
-
 import logging
 
+from schemas.users_schemas import *
+from schemas.rides_schemas import *
+from database.connect import *
+from controllers.auth import get_current_active_user
+from database.models import *
+from database.connect import Base
+
+
 logging.basicConfig(level=logging.DEBUG)  
-
-Base.metadata.create_all(bind=engine)
-
-
-
-def get_db():
-    try:
-        db = SessionLocal()
-        yield db
-    finally:
-        db.close()
-
-Base.metadata.create_all(bind=engine)
 
 
 router = APIRouter(
@@ -56,11 +41,11 @@ def add_user(user: UserCreate, db: Session = Depends(get_db)):
 @router.get("/rides")
 def read_api(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     print("Recibi ride")
-    return db.query(rides_models.Rides).all()
+    return db.query(Rides).all()
 
 @router.get("/users")
 def read_api(db: Session = Depends(get_db)):
-    return db.query(models.Users).all() 
+    return db.query(Users).all() 
 
 
 @router.post("/rides")
@@ -68,7 +53,7 @@ def create_ride(ride: Ride ,current_user: User = Depends(get_current_active_user
     
     print("Recibi el ride y entro a la funcion")
 
-    ride_model = rides_models.Rides()
+    ride_model = Rides()
     ride_model.ride_id = ride.ride_id
     ride_model.driver_id = ride.driver_id
     ride_model.car_plate = ride.carPlate
@@ -95,7 +80,7 @@ def create_ride(ride: Ride ,current_user: User = Depends(get_current_active_user
 @router.delete("/rides")
 def delete_ride(ride_id: int, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
 
-    ride_model = db.query(models.Rides).filter(models.Rides.ride_id == ride_id).first()
+    ride_model = db.query(Rides).filter(Rides.ride_id == ride_id).first()
 
     if ride_model is None:
         raise HTTPException(
@@ -103,14 +88,14 @@ def delete_ride(ride_id: int, current_user: User = Depends(get_current_active_us
             detail=f"ID {ride_id} : Does not exist"
         )
     
-    db.query(models.Rides).filter(models.Rides.ride_id == ride_id).delete()
+    db.query(Rides).filter(Rides.ride_id == ride_id).delete()
     db.commit()
 
 
 @router.put("/users")
 def edit_user(user_id: int, user:User, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     # No es posible editar la password o el user_id pero eso esta bien por ahora
-    user_model = db.query(models.Users).filter(models.Users.user_id == user_id).first()
+    user_model = db.query(Users).filter(Users.user_id == user_id).first()
 
     if user_model is None:
         raise HTTPException(

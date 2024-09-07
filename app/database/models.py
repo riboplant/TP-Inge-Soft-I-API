@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Date, Float, ForeignKeyConstraint, Index, Integer, PrimaryKeyConstraint, Sequence, String, Table, Time
+from sqlalchemy import Boolean, Column, Date, Float, ForeignKeyConstraint, Index, Integer, PrimaryKeyConstraint, String, Table, Time, text
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -11,7 +11,7 @@ class Users(Base):
         PrimaryKeyConstraint('user_id', name='users_pk'),
     )
 
-    user_id = Column(String, Sequence('users_id_seq'), index=True)
+    user_id = Column(String, index=True)
     name = Column(String)
     rider_rating = Column(Float(53))
     email = Column(String)
@@ -59,14 +59,19 @@ class Drivers(Base):
     rides = relationship('Rides', back_populates='driver')
 
 
-t_drives = Table(
-    'drives', metadata,
-    Column('plate', String, nullable=False),
-    Column('driver_id', String, nullable=False),
-    ForeignKeyConstraint(['driver_id'], ['drivers.driver_id'], name='driver_id_fk'),
-    ForeignKeyConstraint(['plate'], ['vehicles.plate'], name='plate_fk'),
-    PrimaryKeyConstraint('plate', 'driver_id', name='drivespkey')
-)
+class Drives(Base):
+    __tablename__ = 'drives'
+    __table_args__ = (
+        ForeignKeyConstraint(['driver_id'], ['drivers.driver_id'], name='driver_id_fk'),
+        ForeignKeyConstraint(['plate'], ['vehicles.plate'], name='plate_fk'),
+        PrimaryKeyConstraint('plate', 'driver_id', name='drivespkey')
+    )
+
+    plate = Column(String, nullable=False)
+    driver_id = Column(String, nullable=False)
+
+    driver = relationship('Drivers', back_populates='vehicles')
+    vehicle = relationship('Vehicles', back_populates='driver')
 
 
 class Rides(Base):
@@ -77,18 +82,22 @@ class Rides(Base):
         PrimaryKeyConstraint('ride_id', name='rides_pkey')
     )
 
-    ride_id = Column(String, Sequence('rides_id_seq'), index=True)
+    ride_id = Column(String, index=True)
     ubication_from = Column(String)
     ubication_to = Column(String)
     car_plate = Column(String)
     driver_id = Column(String)
     ride_date = Column(Date)
-    start_minimum_time = Column(Time)
-    start_maximum_time = Column(Time)
-    real_end_time = Column(Time)
-    real_start_time = Column(Time)
+    start_minimum_time = Column(Time(True))
+    start_maximum_time = Column(Time(True))
+    real_end_time = Column(Time(True))
+    real_start_time = Column(Time(True))
     city_from = Column(String)
     city_to = Column(String)
+    available_space_people = Column(Integer, server_default=text('0'))
+    available_space_small_package = Column(Integer, server_default=text('0'))
+    available_space_medium_package = Column(Integer, server_default=text('0'))
+    available_space_large_package = Column(Integer, server_default=text('0'))
 
     vehicles = relationship('Vehicles', back_populates='rides')
     driver = relationship('Drivers', back_populates='rides')
