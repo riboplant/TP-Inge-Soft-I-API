@@ -38,13 +38,15 @@ class Price(BaseModel):
 
 
 class RideCreate(BaseModel):
-    ubicationFrom: Optional[str] = None
-    ubicationTo: Optional[str] = None
     city_from: Optional[str] = None
     city_to: Optional[str] = None
     ride_date: Optional[date] = None
     start_minimum_time:  Optional[time] = None
     start_maximum_time: Optional[time] = None
+    available_space_people = int = Field(gt=0)
+    available_space_small_package = int = Field(gt=0)
+    available_space_medium_package = int = Field(gt=0)
+    available_space_large_package = int = Field(gt=0)
 
 class PriceSet(BaseModel):
     price_person: float = Field(gt=0)
