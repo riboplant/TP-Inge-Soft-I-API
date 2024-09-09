@@ -28,7 +28,7 @@ def get_user(db: Session, username: str):
         return UserInDB(**user_data.__dict__)
     return None
 
-def authenticate_user(db: Session, username: str = None, password: str = None):
+def authenticate_user( db: Session = Depends(get_db), username: str = None, password: str = None):
     user = get_user(db, username)
     if not user:
         return False

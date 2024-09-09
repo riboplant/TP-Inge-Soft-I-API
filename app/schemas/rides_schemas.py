@@ -43,10 +43,10 @@ class RideCreate(BaseModel):
     ride_date: Optional[date] = None
     start_minimum_time:  Optional[time] = None
     start_maximum_time: Optional[time] = None
-    available_space_people = int = Field(gt=0)
-    available_space_small_package = int = Field(gt=0)
-    available_space_medium_package = int = Field(gt=0)
-    available_space_large_package = int = Field(gt=0)
+    available_space_people: int = Field(gt=0)
+    available_space_small_package: int = Field(gt=0)
+    available_space_medium_package: int = Field(gt=0)
+    available_space_large_package: int = Field(gt=0)
 
 class PriceSet(BaseModel):
     price_person: float = Field(gt=0)

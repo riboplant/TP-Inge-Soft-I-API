@@ -117,7 +117,8 @@ def get_prices(city_from: str, city_to: str):
         print("Something was wrong")
         return None
     
-    return _get_price_set(distance) 
+    return _get_price_set(distance)
+    
 
 
 def create_ride(ride: RideCreate, price: PriceSet, plate: str, driver_id:str):
