@@ -24,6 +24,8 @@ def get_password_hash(password):
 
 def get_user(db: Session, username: str):
     user_data = db.query(Users).filter(Users.name == username).first()
+    if not user_data:
+        user_data = db.query(Users).filter(Users.user_id == username).first()
     if user_data:
         return UserInDB(**user_data.__dict__)
     return None
@@ -55,15 +57,15 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
                                          detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"})
     try:
         payload = jwt.decode(token, settings.key, algorithms=[settings.algorithm])
-        username: str = payload.get("sub")
-        if username is None:
+        id: str = payload.get("sub")
+        if id is None:
             raise credential_exception
-        print(username)
-        token_data = TokenData(username=username)
+        print(id)
+        token_data = TokenData(id=id)
     except JWTError:
         raise credential_exception
     
-    user = get_user(db, username=token_data.username)
+    user = get_user(db, username=token_data.id)
     if user is None:
         raise credential_exception
 

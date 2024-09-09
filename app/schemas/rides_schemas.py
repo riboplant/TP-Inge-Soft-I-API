@@ -14,8 +14,8 @@ class Ride(BaseModel):
     ride_date: Optional[date] = None#date = Field()
     start_minimum_time:  Optional[time] = None#time = Field()
     start_maximum_time: Optional[time] = None#time = Field()
-    real_start_time: Optional[time] = None#time = Field()
-    real_end_time: Optional[time] = None#time = Field()
+    real_start_time: Optional[time] = None
+    real_end_time: Optional[time] = None
 
 class Carry(BaseModel):
     ride_id: str = Field(le=32)
@@ -43,10 +43,10 @@ class RideCreate(BaseModel):
     ride_date: Optional[date] = None
     start_minimum_time:  Optional[time] = None
     start_maximum_time: Optional[time] = None
-    available_space_people = int = Field(gt=0)
-    available_space_small_package = int = Field(gt=0)
-    available_space_medium_package = int = Field(gt=0)
-    available_space_large_package = int = Field(gt=0)
+    available_space_people: int = Field(gt=0)
+    available_space_small_package: int = Field(gt=0)
+    available_space_medium_package: int = Field(gt=0)
+    available_space_large_package: int = Field(gt=0)
 
 class PriceSet(BaseModel):
     price_person: float = Field(gt=0)

@@ -22,8 +22,8 @@ class Users(Base):
     status = Column(String)
     photo_id = Column(Integer)
 
-    drivers = relationship('Drivers', back_populates='user')
-    carrys = relationship('Carrys', back_populates='user')
+    #drivers = relationship('Drivers', back_populates='user')
+    #carrys = relationship('Carrys', back_populates='user')
 
 
 class Vehicles(Base):
@@ -37,8 +37,8 @@ class Vehicles(Base):
     color = Column(String)
     status = Column(String)
 
-    driver = relationship('Drivers', secondary='drives', back_populates='vehicles')
-    rides = relationship('Rides', back_populates='vehicles')
+    #driver = relationship('Drivers', secondary='drives', back_populates='vehicles')
+    #rides = relationship('Rides', back_populates='vehicles')
 
 
 class Drivers(Base):
@@ -54,9 +54,9 @@ class Drivers(Base):
     driver_rating = Column(Float(53))
     status = Column(String)
 
-    user = relationship('Users', back_populates='drivers')
-    vehicles = relationship('Vehicles', secondary='drives', back_populates='driver')
-    rides = relationship('Rides', back_populates='driver')
+    #user = relationship('Users', back_populates='drivers')
+    #vehicles = relationship('Vehicles', secondary='drives', back_populates='driver')
+    #rides = relationship('Rides', back_populates='driver')
 
 
 class Drives(Base):
@@ -70,8 +70,8 @@ class Drives(Base):
     plate = Column(String, nullable=False)
     driver_id = Column(String, nullable=False)
 
-    driver = relationship('Drivers', back_populates='vehicles')
-    vehicle = relationship('Vehicles', back_populates='driver')
+    #driver = relationship('Drivers', back_populates='vehicles')
+    #vehicle = relationship('Vehicles', back_populates='driver')
 
 
 class Rides(Base):
@@ -99,9 +99,9 @@ class Rides(Base):
     available_space_medium_package = Column(Integer, server_default=text('0'))
     available_space_large_package = Column(Integer, server_default=text('0'))
 
-    vehicles = relationship('Vehicles', back_populates='rides')
-    driver = relationship('Drivers', back_populates='rides')
-    carrys = relationship('Carrys', back_populates='ride')
+    #vehicles = relationship('Vehicles', back_populates='rides')
+    #driver = relationship('Drivers', back_populates='rides')
+    #carrys = relationship('Carrys', back_populates='ride')
 
 
 class Carrys(Base):
@@ -119,8 +119,8 @@ class Carrys(Base):
     medium_packages = Column(Integer)
     large_Packages = Column(Integer)
 
-    ride = relationship('Rides', back_populates='carrys')
-    user = relationship('Users', back_populates='carrys')
+    #ride = relationship('Rides', back_populates='carrys')
+    #user = relationship('Users', back_populates='carrys')
 
 
 class Prices(Rides):
