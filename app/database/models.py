@@ -123,7 +123,7 @@ class Carrys(Base):
     #user = relationship('Users', back_populates='carrys')
 
 
-class Prices(Rides):
+class Prices(Base):
     __tablename__ = 'prices'
     __table_args__ = (
         ForeignKeyConstraint(['ride_id'], ['rides.ride_id'], name='ride_id_fk'),

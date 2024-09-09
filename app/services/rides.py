@@ -5,7 +5,7 @@ from sqlalchemy import and_
 from dotenv import load_dotenv
 from uuid import uuid4
 from decouple import config
-
+from sqlalchemy.orm import Session
 
 
 
@@ -121,44 +121,54 @@ def get_prices(city_from: str, city_to: str):
     
 
 
-def create_ride(ride: RideCreate, price: PriceSet, plate: str, driver_id:str):
-
-    db =get_db()
+def create_ride(ride: RideCreate, price: PriceSet, plate: str, driver_id:str, db: Session):
 
     ride_model = Rides()
-    ride_model.driver_id = driver_id
-    ride_model.car_plate = plate
-    ride_model.ride_id = str(uuid4())
+
+    
+
     try:
+        ride_model.ride_id = str(uuid4())
         ride_model.ubication_from = get_coordinates(ride.city_from)# ojo aca,estoy puede fallar si la version gratis de la api
         ride_model.ubication_to = get_coordinates(ride.city_to)    # tiene un limite de una llamada por segundo de ultima metemos un sleep aca. TESTEAAAR
+        ride_model.car_plate = plate
+        ride_model.driver_id = driver_id
+
+        ride_model.city_from = ride.city_from
+        ride_model.city_to = ride.city_to
+        ride_model.ride_date = ride.ride_date
+        ride_model.start_minimum_time = ride.start_minimum_time
+        ride_model.start_maximum_time = ride.start_maximum_time
+        ride_model.real_end_time = None
+        ride_model.real_start_time = None
+        
+        price_model = Prices()
+        price_model.ride_id = ride_model.ride_id
+        price_model.price_person = price.price_person
+        price_model.price_small_package = price.price_small_package
+        price_model.price_medium_package = price.price_medium_package
+        price_model.price_large_package = price.price_large_package
+
     except:
         return -1
-    ride_model.city_from = ride.city_from
-    ride_model.city_to = ride.city_to
-    ride_model.ride_date = ride.ride_date
-    ride_model.start_minimum_time = ride.start_minimum_time
-    ride_model.start_maximum_time = ride.start_maximum_time
-    ride_model.real_end_time = None
-    ride_model.real_start_time = None
+       
 
-    price_model = Prices()
-    price_model.ride_id = ride_model.ride_id
-    price_model.price_person = price.price_person
-    price_model.price_small_package = price.price_small_package
-    price_model.price_medium_package = price.price_medium_package
-    price_model.price_large_package = price.price_large_package
+    try:
 
-    db.add(ride_model)
-    db.commit()
-    db.add(price_model)
-    db.commit()
+        
+
+        db.add(ride_model)
+        db.commit()
+
+        db.add(price_model)
+        db.commit()
+        
+    except:
+        
+        print("NO PUDE PONER LOS PRECIOSS O VIAJES")
+    
+    
     
     return 0 
-    
-    
-    
-    
-    
 
   
