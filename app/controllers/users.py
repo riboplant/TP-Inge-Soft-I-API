@@ -5,6 +5,7 @@ from schemas.users_schemas import *
 from database.models import *
 from database.connect import get_db
 from services.auth import get_current_active_user
+from uuid import uuid4
 
 router = APIRouter(
     prefix="/users",
@@ -102,3 +103,17 @@ async def remove_user_car(plate: str, current_user: User = Depends(get_current_a
     db.commit()
 
     return car
+
+@router.post("/driver")
+async def make_user_driver(drive_data: Driver, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    driver_model = Drivers()
+
+    driver_model.user_id = current_user.user_id
+    driver_model.driver_id = str(uuid4())
+    driver_model.driving_license = drive_data.driving_license
+    driver_model.driver_rating = drive_data.driver_rating
+    driver_model.status = drive_data.driver_rating
+
+    db.add(driver_model)
+    db.commit()
+    return driver_model.driver_id
