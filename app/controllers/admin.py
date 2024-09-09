@@ -93,7 +93,7 @@ def delete_ride(ride_id: int, current_user: User = Depends(get_current_active_us
 
 
 @router.put("/users")
-def edit_user(user_id: int, user:User, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+def edit_user(user_id: str, user:User, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     # No es posible editar la password o el user_id pero eso esta bien por ahora
     user_model = db.query(Users).filter(Users.user_id == user_id).first()
 

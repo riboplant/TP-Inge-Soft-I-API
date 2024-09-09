@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 class User(BaseModel):
-    user_id: str = Field()
+    #user_id: str = Field()
     name: str = Field(min_length=1)
     rider_rating: Optional[float] = Field(ge=0, le=5)
     email: str = Field(min_length=5, max_length=50)
@@ -20,7 +20,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: str or None = None
+    id: str or None = None
 
 
 class UserInDB(User):
@@ -30,6 +30,7 @@ class UserInDB(User):
     dni: Optional[int] = None
     status: Optional[str] = None
     photo_id: Optional[int] = None
+    user_id: str
 
     # Modelo para la creación de usuarios (contiene la contraseña)
 class UserCreate(BaseModel):

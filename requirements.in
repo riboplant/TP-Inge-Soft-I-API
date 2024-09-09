@@ -1,2 +1,5 @@
 fastapi
-schemas
+sqlalchemy
+python-decouple
+python-jose[cryptography]
+python-passlib[bcrypt]
