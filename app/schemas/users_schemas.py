@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 class User(BaseModel):
-    user_id: str = Field()
+    #user_id: str = Field()
     name: str = Field(min_length=1)
     rider_rating: Optional[float] = Field(ge=0, le=5)
     email: str = Field(min_length=5, max_length=50)
