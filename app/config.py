@@ -10,6 +10,6 @@ DBSettings = db_settings()
 class auth_settings():
     key: str = "83daa0256a2289b0fb23693bf1f6034d44396675749244721a2b20e896e11662"
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = 30
+    access_token_expire_minutes: int = 120
     
 AuthSettings = auth_settings()
