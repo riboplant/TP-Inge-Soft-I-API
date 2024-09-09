@@ -55,10 +55,10 @@ class PriceSet(BaseModel):
     price_large_package: float = Field(gt=0)
 
 class searchRideForPackage(BaseModel):
-    ubication_from: str = Field(min_length=1, max_length=100)
-    ubication_to: str = Field(min_length=1, max_length=100)
-    city_from: str = Field(min_length=1, max_length=100)
-    city_to: str = Field(min_length=1, max_length=100)
+    ubication_from: str 
+    ubication_to: str 
+    city_from: str 
+    city_to: str 
     date: date
     number_small_luggage: int = Field(ge=0)
     number_large_luggage: int = Field(ge=0)
@@ -71,11 +71,11 @@ class searchRideForPerson(searchRideForPackage):
 
 
 class rideToReturn(BaseModel):
-    ride_id: str = Field(le=32)
-    city_from: str = Field(min_length=1, max_length=100)
-    city_to: str = Field(min_length=1, max_length=100)
-    driver_name: str = Field(min_length=1, max_length=100)
-    driver_photo: str = Field(min_length=1, max_length=100)
+    ride_id: str
+    city_from: str 
+    city_to: str 
+    driver_name: str 
+    driver_photo: str 
     price: float = Field(ge=0)
     date: date
 

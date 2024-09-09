@@ -14,43 +14,42 @@ from database.models import *
 from utils.locationIQAPI import get_distance_between, get_coordinates
 
 
-def get_people_ride(city_from: str, city_to: str, date: date, people:  int = Field(ge=0), small_packages: int = Field(ge=0), medium_packages: int = Field(ge=0), large_packages: int = Field(ge=0)):
-
+def get_people_ride(city_from: str, city_to: str, date: date, people:  int = Field(ge=0),  medium_packages: int = Field(ge=0), large_packages: int = Field(ge=0)):
     ridesToRet = []
-    index = 0
 
-   # Obtén la sesión y consulta la base de datos
+    # Obtén la sesión y consulta la base de datos
     with next(get_db()) as db_session:
         rides = db_session.query(Rides).filter(
             and_(
                 Rides.city_from == city_from,
                 Rides.city_to == city_to,
-                Rides.date == date,
+                Rides.ride_date == date,
                 Rides.available_space_large_package >= large_packages,
                 Rides.available_space_medium_package >= medium_packages,
-                Rides.available_space_small_package >= small_packages,
                 Rides.available_space_people >= people
-                
             )
-        )
+        ).all()  # Asegúrate de ejecutar la consulta con all() para obtener una lista
+
         for ride in rides:
-            driver_user_id = db_session.query(Drivers).filter_by(Drivers.driver_id == ride.driver_id).user_id
+            driver_user_id = db_session.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
             driver_as_user = db_session.query(Users).filter(Users.user_id == driver_user_id).first()
             priceSet = db_session.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
-            
-            ridesToRet[index]=rideToReturn(
-                ride.ride_id,
-                ride.city_from,
-                ride.city_to,
-                driver_as_user.name,
-                driver_as_user.photo_id,
-                priceSet.price_person * people + priceSet.price_small_package * small_packages + priceSet.price_medium_package * medium_packages + priceSet.price_large_package * large_packages,
-                ride.date,
-                )
-            index = index + 1
+
+            ride_to_return = rideToReturn(
+                ride_id=ride.ride_id,
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                driver_name=driver_as_user.name,
+                driver_photo=driver_as_user.photo_id if driver_as_user.photo_id is not None else "default_photo_url",
+                price=priceSet.price_person * people + priceSet.price_large_package * large_packages + priceSet.price_medium_package * medium_packages,
+                date=ride.ride_date
+            )
+
+
+            ridesToRet.append(ride_to_return)
+
     return ridesToRet
-    
-    
+
 
 def get_package_ride(city_from: str, city_to: str, date: date, small_packages: int = Field(ge=0), medium_packages: int = Field(ge=0), large_packages: int = Field(ge=0)):
     ridesToRet = []

@@ -21,8 +21,8 @@ router = APIRouter(
 
 #buscar viajes para personas
 @router.get("/people") 
-async def get_people_ride(city_from: str, city_to: str, date: date, people:  int , small_packages: int , medium_packages: int, large_packages: int):
-    return rides.get_people_ride(city_from, city_to, date, people, small_packages, medium_packages, large_packages) 
+async def get_people_ride(city_from: str, city_to: str, date: date, people:  int ,  medium_packages: int, large_packages: int):
+    return rides.get_people_ride(city_from, city_to, date, people,  medium_packages, large_packages) 
 
 #esto es para buscar viajes para paquetes
 @router.get("/package")
