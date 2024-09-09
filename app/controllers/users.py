@@ -90,4 +90,15 @@ async def add_user_car(vehicle: Vehicle, current_user: User = Depends(get_curren
     db.commit()
         
 
+@router.delete("/removecar")
+async def remove_user_car(plate: str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    #Checking if user is a driver
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+    if not driver:
+        return {"User is not a driver"}
 
+    id = driver.driver_id
+    car = db.query(Drives).filter(Drives.plate == plate, Drives.driver_id == id).delete()
+    db.commit()
+
+    return car
