@@ -1,5 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,database,linux,macos,windows,venv
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,database,linux,macos,windows,venv
+Dockerfile
 
 ### Database ###
 *.accdb
