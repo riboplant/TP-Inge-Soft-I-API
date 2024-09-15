@@ -12,6 +12,7 @@ app.add_middleware(
     allow_headers=["*"],  # Permitir todos los encabezados
 )
 
+
 app.include_router(rides.router)
 app.include_router(users.router, tags=["users"])
 app.include_router(auth.router, tags=["auth"])

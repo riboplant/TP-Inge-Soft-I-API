@@ -77,6 +77,8 @@ async def create_ride(ride: RideCreate, price: PriceSet, plate: str , current_us
     price_model.price_medium_package = price.price_medium_package
     price_model.price_large_package = price.price_large_package
 
+
+
     db.add(ride_model)
     db.commit()
     db.add(price_model)
