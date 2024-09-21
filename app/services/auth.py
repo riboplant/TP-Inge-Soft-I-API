@@ -22,16 +22,16 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def get_user(db: Session, username: str):
-    user_data = db.query(Users).filter(Users.name == username).first()
+def get_user(db: Session, email: str):
+    user_data = db.query(Users).filter(Users.email == email).first()
     if not user_data:
-        user_data = db.query(Users).filter(Users.user_id == username).first()
+        user_data = db.query(Users).filter(Users.user_id == email).first()
     if user_data:
         return UserInDB(**user_data.__dict__)
     return None
 
-def authenticate_user( db: Session = Depends(get_db), username: str = None, password: str = None):
-    user = get_user(db, username)
+def authenticate_user( db: Session = Depends(get_db), email: str = None, password: str = None):
+    user = get_user(db, email)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
