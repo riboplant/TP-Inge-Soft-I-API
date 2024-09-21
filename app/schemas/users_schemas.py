@@ -35,10 +35,8 @@ class UserInDB(User):
     # Modelo para la creación de usuarios (contiene la contraseña)
 class UserCreate(BaseModel):
     name: str = Field(min_length=1)
-    rider_rating: float = Field(ge=0, le=5)
     email: str = Field(min_length=5, max_length=50)
     password: str = Field(min_length=8)
-    disabled: bool or None = Field(default=None)
     address: Optional[str] = Field(min_length=5)
     dni: int = Field(ge=0)
     status: str = Field()
