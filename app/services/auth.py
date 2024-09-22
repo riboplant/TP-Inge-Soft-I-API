@@ -64,7 +64,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     except JWTError:
         raise credential_exception
     
-    user = get_user(db, username=token_data.id)
+    user = get_user(db, email=token_data.id)
     if user is None:
         raise credential_exception
 
