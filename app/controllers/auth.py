@@ -38,17 +38,26 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 
 @router.post("/users/register")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    user_model = Users()
-    user_model.name = user.name
-    user_model.user_id = str(uuid4())
-    user_model.email = user.email
-    user_model.disabled = False
+    try:
+        print(user)
+        user_model = Users()
+        
+        user_model.user_id = str(uuid4())
+        user_model.name = user.name
+        user_model.rider_rating = 0
+        user_model.email = user.email
+        hashed_password = get_password_hash(user.password)
+        user_model.hashed_password = hashed_password
+        user_model.disabled = False
+        user_model.address = user.address
+        user_model.dni = int(user.dni)
+        user_model.status = "active"
+        user_model.photo_id = user.photo_id
 
-    # Hashear la contraseña antes de almacenarla
-    hashed_password = get_password_hash(user.password)
-    user_model.hashed_password = hashed_password
-
-    db.add(user_model)
-    db.commit()
-    db.refresh(user_model)    
-    return {"msg": "User registered successfully"} 
+        db.add(user_model)
+        db.commit()
+        db.refresh(user_model)
+        
+        return {"msg": "User registered successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=str(e))

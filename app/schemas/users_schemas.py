@@ -38,9 +38,8 @@ class UserCreate(BaseModel):
     email: str = Field(min_length=5, max_length=50)
     password: str = Field(min_length=8)
     address: Optional[str] = Field(min_length=5)
-    dni: int = Field(ge=0)
-    status: str = Field()
-    photo_id: Optional[int] = Field(ge=0)
+    dni: int
+    photo_id: Optional[int]
 
 class Driver(BaseModel):
     user_id: int = Field(ge=0)
