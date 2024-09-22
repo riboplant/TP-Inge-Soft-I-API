@@ -58,10 +58,12 @@ async def get_user_cars(current_user: User = Depends(get_current_active_user), d
     
     vehicles = db.query(Vehicles).join(Drives).filter(Drives.driver_id == driver.driver_id).all()
     
+    vehicle_list = [{"plate": vehicle.plate, "model": vehicle.model} for vehicle in vehicles]
+
     if not vehicles:
         raise HTTPException(status_code=404, detail="No vehicles found for this driver")
     
-    return vehicles
+    return vehicle_list
 
 
 @router.post("/addcar")
