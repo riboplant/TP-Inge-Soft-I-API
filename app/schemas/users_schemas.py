@@ -52,7 +52,7 @@ class Vehicle(BaseModel):
     plate: str = Field()
     model: str = Field()
     color: str = Field()
-    status: str = Field()
+    
 
 
 class Drive(BaseModel):
