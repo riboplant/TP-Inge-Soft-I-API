@@ -27,8 +27,8 @@ async def get_ride(city_from: str, city_to: str, date: date, people:  int , smal
 
 #retorna los precios y -1 si no se encontro alguna de las ciudades
 @router.get("/create")#tiene que estar logueado
-async def create_ride(location_from: str, location_to: str):
-    return rides.get_prices(location_from, location_to)
+async def create_ride(location_from: str, location_to: str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return rides.get_prices_and_cars(location_from, location_to,current_user, db)
 
 
 

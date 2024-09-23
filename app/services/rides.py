@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from uuid import uuid4
 from decouple import config
 from sqlalchemy.orm import Session
+from fastapi import HTTPException, Depends, APIRouter
 
 
 
@@ -41,7 +42,7 @@ def get_ride(city_from: str, city_to: str, date: date, people:  int = Field(ge=0
                 city_from=ride.city_from,
                 city_to=ride.city_to,
                 driver_name=driver_as_user.name,
-                driver_photo=driver_as_user.photo_id if driver_as_user.photo_id is not None else "default_photo_url",
+                driver_photo=driver_as_user.photo if driver_as_user.photo is not None else "default_photo_url",
                 price=priceSet.price_person * people + priceSet.price_large_package * large_packages + priceSet.price_medium_package * medium_packages + priceSet.price_small_package * small_packages,
                 date=ride.ride_date
             )
@@ -75,7 +76,7 @@ def _get_price_set(distance:float):
     return set_prices
 
 
-def get_prices(city_from: str, city_to: str):
+def get_prices_and_cars(city_from: str, city_to: str, current_user, db):
 
     try:
         distance = get_distance_between(city_from,city_to)
@@ -83,7 +84,27 @@ def get_prices(city_from: str, city_to: str):
         print("Something was wrong")
         return None
     
-    return _get_price_set(distance)
+    priceSet = _get_price_set(distance)
+    
+    #Checking if user is driver
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+    if not driver:
+        raise HTTPException(status_code=402, detail="User is not a driver")
+    
+    vehicles = db.query(Vehicles).join(Drives).filter(Drives.driver_id == driver.driver_id).all()
+    
+    vehicle_list = [{"plate": vehicle.plate, "model": vehicle.model} for vehicle in vehicles]
+
+    if not vehicles:
+        raise HTTPException(status_code=403, detail="No vehicles found")
+    
+    
+    objToRet = {
+        "prices": priceSet,
+        "cars": vehicle_list
+    }
+    
+    return objToRet
     
 
 
