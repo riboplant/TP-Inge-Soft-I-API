@@ -20,7 +20,7 @@ class Users(Base):
     address = Column(String)
     dni = Column(Integer)
     status = Column(String)
-    photo_id = Column(String)
+    photo = Column(String)
 
     #drivers = relationship('Drivers', back_populates='user')
     #carrys = relationship('Carrys', back_populates='user')
