@@ -39,7 +39,7 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=8)
     address: Optional[str] = Field(min_length=5)
     dni: int
-    photo_id: Optional[int]
+    photo_id: Optional[str]
 
 class Driver(BaseModel):
     user_id: int = Field(ge=0)
