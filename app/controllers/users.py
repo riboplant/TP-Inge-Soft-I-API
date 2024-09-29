@@ -32,10 +32,6 @@ async def edit_user_photo(base64Image: Base_64, current_user: User = Depends(get
     ans = await edit_photo(base64Image.base_64_image, current_user, db)
     return ans
 
-@router.delete("/delete/photo")#tenes que estar logueado permite editar el perfil del current
-async def edit_user_photo(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    ans = await delete_photo(current_user, db)
-    return ans
 
 @router.put("/edit/name")#tenes que estar logueado permite editar el perfil del current
 async def edit_user_name(name: str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):

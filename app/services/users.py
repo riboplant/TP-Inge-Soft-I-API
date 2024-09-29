@@ -19,9 +19,6 @@ async def edit_photo(base64Image: str, current_user, db):
             detail=f"ID {current_user.user_id} : Does not exist"
         )
     
-    if(user_model.photo_url):
-        delete_photo(user_model.photo_url)
-
     try:
         img = await upload_image(base64Image)
         
@@ -49,17 +46,3 @@ async def edit_photo(base64Image: str, current_user, db):
 
 
 
-async def delete_photo(base64Image: str, current_user, db):
-    
-    user_model = db.query(Users).filter(Users.user_id == current_user.user_id).first()
-
-    if user_model is None:
-        raise HTTPException(
-            status_code=401,
-            detail=f"ID {current_user.user_id} : Does not exist"
-        )
-    
-    # if(user_model.photo_url):
-    #    delete_image(user_model.photo_url)
-
-    return 0
