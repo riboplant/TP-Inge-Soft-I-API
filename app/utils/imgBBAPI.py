@@ -17,7 +17,7 @@ async def upload_image(base64Image: str):
             response = await client.post(
                 f"https://api.imgbb.com/1/upload?expiration=600&key={API_KEY}",
                 data=body,
-                timeout=10
+                timeout=10000
             )
 
         

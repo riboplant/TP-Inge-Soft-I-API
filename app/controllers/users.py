@@ -17,7 +17,7 @@ router = APIRouter(
 
 @router.get("/me")
 async def get_me(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    return db.query(Users).filter(Users.user_id == current_user.user_id).first()
+    return get_user_data(current_user, db)
 
 @router.get("/{user_id}") #esto me permite ver el perfil de otro usuario con datos y resenas correspondientes, debo estar loguado
 async def get_user_from_id(user_id : str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):

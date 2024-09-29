@@ -8,6 +8,24 @@ from services.auth import get_current_active_user
 from uuid import uuid4
 from utils.imgBBAPI import *
 
+async def get_user_data(current_user, db):
+    user_model = db.query(Users).filter(Users.user_id == current_user.user_id).first()
+    if user_model is None:
+        raise HTTPException(
+            status_code=401,
+            detail=f"ID {current_user.user_id} : Does not exist"
+        )
+    
+    user = UserData(
+        name=user_model.name,
+        email=user_model.email,
+        address=user_model.address,
+        dni=user_model.dni,
+        photo_url=user_model.photo_url
+    )
+
+    return user
+
 
 async def edit_photo(base64Image: str, current_user, db):
     

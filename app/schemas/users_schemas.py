@@ -13,6 +13,13 @@ class User(BaseModel):
     photo_url: Optional[str]
     delete_photo_url: Optional[str]
 
+class UserData(BaseModel):
+    name: str
+    email: str
+    address: Optional[str]
+    dni: Optional[int]
+    photo_url: Optional[str]
+
 class PhotoURLS(BaseModel):
     photo_url: str
     delete_photo_url: str
