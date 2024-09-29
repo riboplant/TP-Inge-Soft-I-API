@@ -28,8 +28,19 @@ async def get_user_from_id(user_id : str, current_user: User = Depends(get_curre
     return response
     
 @router.put("/edit/photo")#tenes que estar logueado permite editar el perfil del current
-async def edit_user(base64Image: Base_64, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    return await edit_photo(base64Image.base_64_image, current_user, db)
+async def edit_user_photo(base64Image: Base_64, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    ans = await edit_photo(base64Image.base_64_image, current_user, db)
+    return ans
+
+@router.delete("/delete/photo")#tenes que estar logueado permite editar el perfil del current
+async def edit_user_photo(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    ans = await delete_photo(current_user, db)
+    return ans
+
+@router.put("/edit/name")#tenes que estar logueado permite editar el perfil del current
+async def edit_user_name(name: str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return 0
+
 
 @router.get("/mycars")
 async def get_user_cars(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
