@@ -28,9 +28,8 @@ async def get_ride(city_from: str, city_to: str, date: date, people:  int , smal
 #retorna los precios y -1 si no se encontro alguna de las ciudades
 @router.get("/create")#tiene que estar logueado
 async def create_ride(location_from: str, location_to: str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    aux = rides.get_prices_and_cars(location_from, location_to,current_user, db)
-    print(aux)
-    return aux
+    return rides.get_prices_and_cars(location_from, location_to,current_user, db)
+    
 
 
 
@@ -83,6 +82,15 @@ async def create_ride(ride: RideCreate, price: PriceSet, plate: str , current_us
 
     return 0
 
+
+@router.get("/history")#Los viajes tales que su fecha es menor a la actual. Tiene que estar logueado para acceder
+async def my_rides_history():
+     return ""
+
+@router.get("/upcoming")#Los viajes tales que su fecha es mayor a la actual. Tiene que estar logueado para acceder
+async def my_rides_history():
+     return ""
+
 ##VEEEEEEEEEEEEEEEEEEEEEEEEEEEEERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
 
 # #esto sirve para que el formulario de edicion de un viaje nos pida todos los datos y despues los edite y nos llamen al edit_ride
@@ -97,11 +105,3 @@ async def create_ride(ride: RideCreate, price: PriceSet, plate: str , current_us
 # @router.delete("/delete/{ride_id}")#tiene que estar logueado y el viaje debe ser suyo
 # async def edit_ride(ride_id : int): # si ya te pasaste de la fecha te decimos que no podes borrar
 #         return "Lo borre/no lo borre"
-
-# @router.get("/history")#Los viajes tales que su fecha es menor a la actual. Tiene que estar logueado para acceder
-# async def my_rides_history():
-#      return ""
-
-# @router.get("/upcoming")#Los viajes tales que su fecha es mayor a la actual. Tiene que estar logueado para acceder
-# async def my_rides_history():
-#      return ""

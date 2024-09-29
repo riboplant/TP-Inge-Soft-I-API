@@ -49,7 +49,7 @@ def get_ride(city_from: str, city_to: str, date: date, people:  int = Field(ge=0
 
 
             ridesToRet.append(ride_to_return)
-
+    
     return ridesToRet
 
 
@@ -81,8 +81,7 @@ def get_prices_and_cars(city_from: str, city_to: str, current_user, db):
     try:
         distance = get_distance_between(city_from,city_to)
     except:
-        print("Something was wrong")
-        return None
+        raise HTTPException(status_code=400, detail="Error getting distance between cities")
     
     priceSet = _get_price_set(distance)
     
@@ -94,56 +93,44 @@ def get_prices_and_cars(city_from: str, city_to: str, current_user, db):
     vehicles = db.query(Vehicles).join(Drives).filter(Drives.driver_id == driver.driver_id).all()
     
     vehicle_list = [{"plate": vehicle.plate, "model": vehicle.model} for vehicle in vehicles]
-
-    if not vehicles:
-        raise HTTPException(status_code=403, detail="No vehicles found")
     
-    
-    objToRet = {
+    return {
         "prices": priceSet,
         "cars": vehicle_list
     }
     
-    return objToRet
-    
 
 
-def create_ride(ride: RideCreate, price: PriceSet, plate: str, driver_id:str, db: Session):
+def prices_and_cars(ride: RideCreate, price: PriceSet, plate: str, driver_id:str, db: Session):
 
     ride_model = Rides()
 
     
-
+    ride_model.ride_id = str(uuid4())
     try:
-        ride_model.ride_id = str(uuid4())
         ride_model.ubication_from = get_coordinates(ride.city_from)# ojo aca,estoy puede fallar si la version gratis de la api
         ride_model.ubication_to = get_coordinates(ride.city_to)    # tiene un limite de una llamada por segundo de ultima metemos un sleep aca. TESTEAAAR
-        ride_model.car_plate = plate
-        ride_model.driver_id = driver_id
-
-        ride_model.city_from = ride.city_from
-        ride_model.city_to = ride.city_to
-        ride_model.ride_date = ride.ride_date
-        ride_model.start_minimum_time = ride.start_minimum_time
-        ride_model.start_maximum_time = ride.start_maximum_time
-        ride_model.real_end_time = None
-        ride_model.real_start_time = None
-        
-        price_model = Prices()
-        price_model.ride_id = ride_model.ride_id
-        price_model.price_person = price.price_person
-        price_model.price_small_package = price.price_small_package
-        price_model.price_medium_package = price.price_medium_package
-        price_model.price_large_package = price.price_large_package
-
     except:
-        return -1
-       
+        raise HTTPException(status_code=400, detail="Error getting coordinates")
+    
+    ride_model.car_plate = plate
+    ride_model.driver_id = driver_id
+    ride_model.city_from = ride.city_from
+    ride_model.city_to = ride.city_to
+    ride_model.ride_date = ride.ride_date
+    ride_model.start_minimum_time = ride.start_minimum_time
+    ride_model.start_maximum_time = ride.start_maximum_time
+    ride_model.real_end_time = None
+    ride_model.real_start_time = None
+    
+    price_model = Prices()
+    price_model.ride_id = ride_model.ride_id
+    price_model.price_person = price.price_person
+    price_model.price_small_package = price.price_small_package
+    price_model.price_medium_package = price.price_medium_package
+    price_model.price_large_package = price.price_large_package
 
     try:
-
-        
-
         db.add(ride_model)
         db.commit()
 
@@ -151,10 +138,7 @@ def create_ride(ride: RideCreate, price: PriceSet, plate: str, driver_id:str, db
         db.commit()
         
     except:
-        
-        print("NO PUDE PONER LOS PRECIOSS O VIAJES")
-    
-    
+        raise HTTPException(status_code=400, detail="Error adding ride to database")
     
     return 0 
 

@@ -1,11 +1,13 @@
 import requests
+from dotenv import load_dotenv
+from decouple import config
 
-# Tu API Key de LocationIQ
-API_KEY = 'pk.2e190d42afd4bf8da39b9ba216bc5be7'
-
-import requests
-
-def get_coordinates(city):  # The app must use the name expected by LocationIQ
+load_dotenv()
+API_KEY = str(config('API_KEY_LOCATIONIQ'))    
+    
+    
+    
+def get_coordinates(city):
     url = f'https://us1.locationiq.com/v1/search.php?key={API_KEY}&q={city}&format=json'
     response = requests.get(url)
     data = response.json()
@@ -19,7 +21,7 @@ def _calculate_distance(lon1, lat1, lon2, lat2):
     data = response.json()
     
     if 'routes' in data:
-        # Extract distance from the first route and the first leg
+        
         routes = data['routes']
         if routes:
             route = routes[0]

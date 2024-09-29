@@ -10,10 +10,15 @@ class User(BaseModel):
     address: Optional[str] = Field(min_length=5)
     dni: Optional[int] = Field(ge=0)
     status: Optional[str] = Field()
-    photo: Optional[str]
+    photo_url: Optional[str]
+    delete_photo_url: Optional[str]
 
+class PhotoURLS(BaseModel):
+    photo_url: str
+    delete_photo_url: str
 
-
+class Base_64(BaseModel):
+    base_64_image: str
 class Token(BaseModel):
     access_token: str
     token_type: str

@@ -20,7 +20,8 @@ class Users(Base):
     address = Column(String)
     dni = Column(Integer)
     status = Column(String)
-    photo = Column(String)
+    photo_url = Column(String)
+    delete_photo_url = Column(String)
 
     #drivers = relationship('Drivers', back_populates='user')
     #carrys = relationship('Carrys', back_populates='user')
