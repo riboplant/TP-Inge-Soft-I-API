@@ -7,6 +7,7 @@ from uuid import uuid4
 from decouple import config
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, Depends, APIRouter
+from datetime import datetime
 
 
 
@@ -142,4 +143,52 @@ def prices_and_cars(ride: RideCreate, price: PriceSet, plate: str, driver_id:str
     
     return 0 
 
-  
+
+#cuando el time no este mas harcodeado lo tenemos que agregar en estos dos metodos para hacer la comparacion
+def my_rides_history( current_user, db):
+    rides_to_return = []
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+    if not driver:
+        raise HTTPException(status_code=402, detail="User is not a driver")
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date <= datetime.now().date()).all()
+    
+    for ride in rides:
+           
+            ride_to_return = rideToReturn(
+                ride_id=ride.ride_id,
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                driver_name=current_user.name,
+                driver_photo=current_user.photo_url,
+                date=ride.ride_date,
+                price=5
+            )
+
+
+            rides_to_return.append(ride_to_return)
+    
+    return rides_to_return
+
+def my_rides_upcoming( current_user, db):
+    rides_to_return = []
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+    if not driver:
+        raise HTTPException(status_code=402, detail="User is not a driver")
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date > datetime.now().date()).all()
+    
+    for ride in rides:
+
+            ride_to_return = rideToReturn(
+                ride_id=ride.ride_id,
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                driver_name=current_user.name,
+                driver_photo=current_user.photo_url,
+                date=ride.ride_date,
+                price=5
+            )
+
+
+            rides_to_return.append(ride_to_return)
+    
+    return rides_to_return

@@ -79,6 +79,8 @@ class rideToReturn(BaseModel):
     price: float = Field(ge=0)
     date: date
 
+
+
 class rideDetailToReturn(rideToReturn):
 
     available_space_persons: int = Field(ge=0)
