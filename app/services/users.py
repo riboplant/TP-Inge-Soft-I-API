@@ -1,5 +1,5 @@
 import os
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from schemas.users_schemas import *
 from database.models import *
@@ -7,6 +7,8 @@ from database.connect import get_db
 from services.auth import get_current_active_user
 from uuid import uuid4
 from utils.imgBBAPI import *
+from fastapi.responses import JSONResponse
+
 
 async def get_user_data(current_user, db):
     user_model = db.query(Users).filter(Users.user_id == current_user.user_id).first()
@@ -64,3 +66,17 @@ async def edit_photo(base64Image: str, current_user, db):
 
 
 
+def delete_photo(current_user, db):
+    try:
+        user_model = db.query(Users).filter(Users.user_id == current_user.user_id).first()
+        setattr(user_model, "photo_url", None)
+        setattr(user_model, "delete_photo_url", None)
+        db.commit()
+        db.refresh(user_model)
+    except:
+        raise HTTPException(
+            status_code=500,
+            detail="Error deleting image"
+        )
+    
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Image deleted successfully"})

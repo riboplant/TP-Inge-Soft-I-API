@@ -19,7 +19,7 @@ router = APIRouter(
 async def get_me(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return get_user_data(current_user, db)
 
-@router.get("/{user_id}") #esto me permite ver el perfil de otro usuario con datos y resenas correspondientes, debo estar loguado
+@router.get("/{user_id}")
 async def get_user_from_id(user_id : str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     response = db.query(Users).filter(Users.user_id == user_id).first()
     if response is None:
@@ -27,13 +27,20 @@ async def get_user_from_id(user_id : str, current_user: User = Depends(get_curre
     
     return response
     
-@router.put("/edit/photo")#tenes que estar logueado permite editar el perfil del current
+@router.put("/edit/photo")
 async def edit_user_photo(base64Image: Base_64, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     ans = await edit_photo(base64Image.base_64_image, current_user, db)
     return ans
 
+@router.delete("/delete/photo")
+async def delete_user_photo(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return delete_photo(current_user, db)
+    
 
-@router.put("/edit/name")#tenes que estar logueado permite editar el perfil del current
+
+
+
+@router.put("/edit/name")
 async def edit_user_name(name: str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return 0
 

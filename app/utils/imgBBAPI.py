@@ -15,7 +15,7 @@ async def upload_image(base64Image: str):
 
         async with httpx.AsyncClient() as client:  
             response = await client.post(
-                f"https://api.imgbb.com/1/upload?expiration=600&key={API_KEY}",
+                f"https://api.imgbb.com/1/upload?key={API_KEY}",
                 data=body,
                 timeout=10000
             )
