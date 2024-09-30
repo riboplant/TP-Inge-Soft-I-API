@@ -83,13 +83,22 @@ async def create_ride(ride: RideCreate, price: PriceSet, plate: str , current_us
     return 0
 
 
-@router.get("/history")#Los viajes tales que su fecha es menor a la actual. Tiene que estar logueado para acceder
-async def my_rides_history( current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-     return rides.my_rides_history(current_user, db)
+@router.get("/history/driver")
+async def history_driver( current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+     return rides.history_driver(current_user, db)
 
-@router.get("/upcoming")#Los viajes tales que su fecha es mayor a la actual. Tiene que estar logueado para acceder
+@router.get("/upcoming/driver")
+async def upcoming_driver( current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+     return rides.upcoming_driver(current_user, db)
+
+@router.get("/history/rider")
+async def history_rider( current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+     return rides.history_rider(current_user, db)
+
+@router.get("/upcoming/rider")
 async def my_rides_upcoming( current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-     return rides.my_rides_upcoming(current_user, db)
+     return rides.upcoming_rider(current_user, db)
+
 
 ##VEEEEEEEEEEEEEEEEEEEEEEEEEEEEERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
 

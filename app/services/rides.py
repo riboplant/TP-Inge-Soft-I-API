@@ -44,7 +44,7 @@ def get_ride(city_from: str, city_to: str, date: date, people:  int = Field(ge=0
                 city_to=ride.city_to,
                 driver_name=driver_as_user.name,
                 driver_photo=driver_as_user.photo if driver_as_user.photo is not None else "default_photo_url",
-                price=priceSet.price_person * people + priceSet.price_large_package * large_packages + priceSet.price_medium_package * medium_packages + priceSet.price_small_package * small_packages,
+                price=_price(priceSet, people, small_packages, medium_packages, large_packages),
                 date=ride.ride_date
             )
 
@@ -145,7 +145,7 @@ def prices_and_cars(ride: RideCreate, price: PriceSet, plate: str, driver_id:str
 
 
 #cuando el time no este mas harcodeado lo tenemos que agregar en estos dos metodos para hacer la comparacion
-def my_rides_history( current_user, db):
+def history_driver( current_user, db):
     rides_to_return = []
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
@@ -153,23 +153,25 @@ def my_rides_history( current_user, db):
     rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date <= datetime.now().date()).all()
     
     for ride in rides:
-           
-            ride_to_return = rideToReturn(
+            prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
+
+
+
+            ride_to_return = HistoryOrUpcomingAsDriver(
                 ride_id=ride.ride_id,
                 city_from=ride.city_from,
                 city_to=ride.city_to,
-                driver_name=current_user.name,
-                driver_photo=current_user.photo_url,
                 date=ride.ride_date,
-                price=5
+                price= _total_price(ride.ride_id, prices, db)
             )
+
 
 
             rides_to_return.append(ride_to_return)
     
     return rides_to_return
 
-def my_rides_upcoming( current_user, db):
+def upcoming_driver( current_user, db):
     rides_to_return = []
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
@@ -178,17 +180,27 @@ def my_rides_upcoming( current_user, db):
     
     for ride in rides:
 
-            ride_to_return = rideToReturn(
+            ride_to_return = HistoryOrUpcomingAsDriver(
                 ride_id=ride.ride_id,
                 city_from=ride.city_from,
                 city_to=ride.city_to,
-                driver_name=current_user.name,
-                driver_photo=current_user.photo_url,
                 date=ride.ride_date,
-                price=5
+                price=_total_price(ride.ride_id, db)
             )
 
 
             rides_to_return.append(ride_to_return)
     
     return rides_to_return
+
+
+
+def _price(priceSet: PriceSet, people: int, small_packages: int, medium_packages: int, large_packages: int):
+    return priceSet.price_person * people + priceSet.price_large_package * large_packages + priceSet.price_medium_package * medium_packages + priceSet.price_small_package * small_packages
+
+def _total_price(ride_id, set_prices, db):
+    vec = db.query(Carrys).filter(Carrys.ride_id == ride_id).all()
+    sum = 0
+    for row in vec:
+        sum += _price(set_prices, row.persons, row.small_packages, row.medium_packages, row.large_Packages)
+    return sum
