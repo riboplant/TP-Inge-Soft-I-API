@@ -80,3 +80,110 @@ def delete_photo(current_user, db):
         )
     
     return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Image deleted successfully"})
+
+
+def get_cars(current_user, db):
+
+    #Checking if user is driver
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+    if not driver:
+        raise HTTPException(status_code=402, detail="User is not a driver")
+    
+    vehicles = db.query(Vehicles).join(Drives).filter(Drives.driver_id == driver.driver_id).all()
+    
+    vehicle_list = [{"plate": vehicle.plate, "model": vehicle.model} for vehicle in vehicles]
+
+    if not vehicles:
+        raise HTTPException(status_code=403, detail="No vehicles found")
+    
+    return vehicle_list
+
+
+def add_car(vehicle, current_user, db):
+    
+    
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+    if not driver:
+        raise HTTPException(status_code=403, detail="User is not a driver")
+
+    id = driver.driver_id
+    car = db.query(Vehicles).filter(Vehicles.plate == vehicle.plate).first()
+
+    if not car:
+        vehicle_model = Vehicles()
+        vehicle_model.color = vehicle.color
+        vehicle_model.model = vehicle.model
+        vehicle_model.status = "Unchecked"
+        vehicle_model.plate = vehicle.plate
+        try:
+            db.add(vehicle_model)
+            db.commit()
+        except:
+            raise HTTPException(status_code=500, detail="Error adding vehicle")
+
+    drives = db.query(Drives).filter(Drives.plate == vehicle.plate, Drives.driver_id == id).first()
+    if not drives:
+        drive_model = Drives()
+        drive_model.plate = vehicle.plate
+        drive_model.driver_id = id
+        try:
+            db.add(drive_model)
+            db.commit()
+        except:
+            raise HTTPException(status_code=500, detail="Error adding vehicle to driver")
+    
+    else:
+        raise HTTPException(status_code=401, detail="Vehicle already added")
+    
+    return {"message": "Vehicle added successfully"}
+
+
+def remove_car(plate: str, current_user, db):
+    
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+    if not driver:
+        return HTTPException(status_code=403, detail="User is not a driver")
+
+    id = driver.driver_id
+
+    drives = db.query(Drives).filter(Drives.plate == plate, Drives.driver_id == id).first()
+    
+    if not drives:
+        return HTTPException(status_code=401, detail="Vehicle not found")
+    try:
+        db.remove(drives)
+        db.commit()
+    except:
+        return HTTPException(status_code=500, detail="Error removing vehicle")
+
+    aux = db.query(Drives).filter(Drives.plate == plate).all()
+
+    if not aux:
+        car = db.query(Vehicles).filter(Vehicles.plate == plate).first()
+        try:
+            db.remove(car)
+            db.commit()
+        except:
+            return HTTPException(status_code=500, detail="Error removing vehicle")
+
+    return 0
+
+def make_driver(current_user, db):
+
+    if(db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()):
+        return HTTPException(status_code=403, detail="User is already a driver")
+    
+    driver_model = Drivers()
+
+    driver_model.user_id = current_user.user_id
+    driver_model.driver_id = str(uuid4())
+    driver_model.driving_license = 0
+    driver_model.driver_rating = 0
+    driver_model.status = 0
+    try:
+        db.add(driver_model)
+        db.commit()
+    except:
+        return HTTPException(status_code=500, detail="Error making user driver")
+    
+    return driver_model.driver_id                     
