@@ -10,7 +10,7 @@ from utils.imgBBAPI import *
 from fastapi.responses import JSONResponse
 
 
-async def get_user_data(current_user, db):
+def get_user_data(current_user, db):
     user_model = db.query(Users).filter(Users.user_id == current_user.user_id).first()
     if user_model is None:
         raise HTTPException(

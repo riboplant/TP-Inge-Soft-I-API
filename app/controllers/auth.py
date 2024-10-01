@@ -52,7 +52,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         user_model.address = user.address
         user_model.dni = int(user.dni)
         user_model.status = "active"
-        user_model.photo = user.photo
+        user_model.photo_url = user.photo_url
 
         db.add(user_model)
         db.commit()

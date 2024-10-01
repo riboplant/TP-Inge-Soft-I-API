@@ -41,7 +41,7 @@ class UserInDB(User):
     address: Optional[str] = None
     dni: Optional[int] = None
     status: Optional[str] = None
-    photo: Optional[str] = None
+    photo_url: Optional[str] = None
     user_id: str
 
     # Modelo para la creación de usuarios (contiene la contraseña)
@@ -51,7 +51,7 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=8)
     address: Optional[str] = Field(min_length=5)
     dni: int
-    photo: Optional[str]
+    photo_url: Optional[str]
 
 class Driver(BaseModel):
     user_id: int = Field(ge=0)

@@ -43,7 +43,7 @@ def get_ride(city_from: str, city_to: str, date: date, people:  int = Field(ge=0
                 city_from=ride.city_from,
                 city_to=ride.city_to,
                 driver_name=driver_as_user.name,
-                driver_photo=driver_as_user.photo if driver_as_user.photo is not None else "default_photo_url",
+                driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else "default_photo_url",
                 price=_price(priceSet, people, small_packages, medium_packages, large_packages),
                 date=ride.ride_date
             )

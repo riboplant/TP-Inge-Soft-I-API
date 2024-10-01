@@ -62,6 +62,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
             raise credential_exception
         token_data = TokenData(id=id)
     except JWTError:
+
         raise credential_exception
     
     user = get_user(db, email=token_data.id)

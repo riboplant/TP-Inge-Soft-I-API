@@ -8,6 +8,8 @@ from services.auth import get_current_active_user
 from uuid import uuid4
 from services.users import *
 
+
+
 router = APIRouter(
     prefix="/users",
     tags=["users"]
@@ -19,13 +21,13 @@ router = APIRouter(
 async def get_me(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return get_user_data(current_user, db)
 
-@router.get("/{user_id}")
-async def get_user_from_id(user_id : str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    response = db.query(Users).filter(Users.user_id == user_id).first()
-    if response is None:
-        return [{"Usuario": "Usuario con id = {user_id} no exits"}]
+# @router.get("/{user_id}")
+# async def get_user_from_id(user_id : str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+#     response = db.query(Users).filter(Users.user_id == user_id).first()
+#     if response is None:
+#         return [{"Usuario": "Usuario con id = {user_id} no exits"}]
     
-    return response
+#     return response
     
 @router.put("/edit/photo")
 async def edit_user_photo(base64Image: Base_64, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
@@ -47,6 +49,9 @@ async def edit_user_name(name: str, current_user: User = Depends(get_current_act
 
 @router.get("/mycars")
 async def get_user_cars(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    
+    return get_user_data(current_user, db)
+    
     #Checking if user is driver
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
@@ -60,7 +65,6 @@ async def get_user_cars(current_user: User = Depends(get_current_active_user), d
         raise HTTPException(status_code=403, detail="No vehicles found")
     
     return vehicle_list
-
 
 @router.post("/addcar")
 async def add_user_car(vehicle: Vehicle, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
