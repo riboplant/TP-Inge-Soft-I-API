@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from schemas.users_schemas import UserInDB, TokenData
 from database.connect import get_db 
 from database.models import *
-from config import AuthSettings as settings
+from config.settings import AuthSettings as settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -69,6 +69,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credential_exception
 
     return user
+
 
 async def get_current_active_user(current_user: UserInDB = Depends(get_current_user)):
     if current_user.disabled:

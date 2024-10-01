@@ -41,8 +41,11 @@ class UserInDB(User):
     address: Optional[str] = None
     dni: Optional[int] = None
     status: Optional[str] = None
-    photo: Optional[str] = None
+    photo_url: Optional[str] = None
+    delete_photo_url: Optional[str] = None
     user_id: str
+    disabled: Optional[bool] = None
+
 
     # Modelo para la creación de usuarios (contiene la contraseña)
 class UserCreate(BaseModel):

@@ -9,7 +9,7 @@ from database.models import *
 from database.connect import *
 from database.models import *
 
-from config import AuthSettings as settings
+from config.settings import AuthSettings as settings
 from services.auth import get_current_active_user, create_access_token, authenticate_user, get_password_hash
 
 from uuid import uuid4
