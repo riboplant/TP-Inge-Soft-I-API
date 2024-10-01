@@ -92,9 +92,6 @@ def get_cars(current_user, db):
     vehicles = db.query(Vehicles).join(Drives).filter(Drives.driver_id == driver.driver_id).all()
     
     vehicle_list = [{"plate": vehicle.plate, "model": vehicle.model} for vehicle in vehicles]
-
-    if not vehicles:
-        raise HTTPException(status_code=403, detail="No vehicles found")
     
     return vehicle_list
 
@@ -151,7 +148,7 @@ def remove_car(plate: str, current_user, db):
     if not drives:
         return HTTPException(status_code=401, detail="Vehicle not found")
     try:
-        db.remove(drives)
+        db.delete(drives)
         db.commit()
     except:
         return HTTPException(status_code=500, detail="Error removing vehicle")
@@ -161,7 +158,7 @@ def remove_car(plate: str, current_user, db):
     if not aux:
         car = db.query(Vehicles).filter(Vehicles.plate == plate).first()
         try:
-            db.remove(car)
+            db.delete(car)
             db.commit()
         except:
             return HTTPException(status_code=500, detail="Error removing vehicle")
