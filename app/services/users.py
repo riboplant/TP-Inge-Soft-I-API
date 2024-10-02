@@ -151,7 +151,7 @@ def remove_car(plate: str, current_user, db):
     if not drives:
         return HTTPException(status_code=401, detail="Vehicle not found")
     try:
-        db.remove(drives)
+        db.delete(drives)
         db.commit()
     except:
         return HTTPException(status_code=500, detail="Error removing vehicle")
@@ -161,7 +161,7 @@ def remove_car(plate: str, current_user, db):
     if not aux:
         car = db.query(Vehicles).filter(Vehicles.plate == plate).first()
         try:
-            db.remove(car)
+            db.delete(car)
             db.commit()
         except:
             return HTTPException(status_code=500, detail="Error removing vehicle")
