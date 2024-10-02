@@ -33,6 +33,7 @@ async def create_ride(location_from: str, location_to: str, current_user: User =
 
 @router.post("/create/detail")#tiene que estar logueado
 async def create_ride(ride: RideCreate, price: PriceSet, plate: str , current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):#quien es el driver, ver manejo de sesiones.El driver es el usuario logueado en ese momento
+    print('pase')
     return rides.create_ride(ride, price, plate, current_user, db)
 
 
