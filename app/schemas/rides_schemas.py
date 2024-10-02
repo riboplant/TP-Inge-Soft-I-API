@@ -78,6 +78,7 @@ class rideToReturn(BaseModel):
     driver_photo: str 
     price: float = Field(ge=0)
     date: date
+    state: str
 
 class HistoryOrUpcomingAsDriver(BaseModel):
     ride_id: str
