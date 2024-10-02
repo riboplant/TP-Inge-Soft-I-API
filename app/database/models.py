@@ -119,6 +119,7 @@ class Carrys(Base):
     small_packages = Column(Integer)
     medium_packages = Column(Integer)
     large_Packages = Column(Integer)
+    state = Column(String)
 
     #ride = relationship('Rides', back_populates='carrys')
     #user = relationship('Users', back_populates='carrys')

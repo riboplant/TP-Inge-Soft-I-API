@@ -166,7 +166,7 @@ def history_driver( current_user, db):
                 city_to=ride.city_to,
                 date=ride.ride_date,
                 price= _total_price(ride.ride_id, prices, db),
-                state='pending'
+                state=''
             )
 
 
@@ -184,7 +184,10 @@ def upcoming_driver( current_user, db):
     
     for ride in rides:
             prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
-
+            status = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'pending').first()
+            state = 'pending'
+            if status is None :
+                 state = ''
 
             ride_to_return = HistoryOrUpcomingAsDriver(
                 ride_id=ride.ride_id,
@@ -192,7 +195,7 @@ def upcoming_driver( current_user, db):
                 city_to=ride.city_to,
                 date=ride.ride_date,
                 price= _total_price(ride.ride_id, prices, db),
-                state='pending'
+                state=state
             )
 
 
@@ -201,6 +204,63 @@ def upcoming_driver( current_user, db):
     
     return rides_to_return
 
+
+#cuando el time no este mas harcodeado lo tenemos que agregar en estos dos metodos para hacer la comparacion
+def history_rider( current_user, db):
+    rides_to_return = []
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+    if not driver:
+        raise HTTPException(status_code=402, detail="User is not a driver")
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date <= datetime.now().date()).all()
+    
+    for ride in rides:
+            prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
+
+
+            ride_to_return = HistoryOrUpcomingAsDriver(
+                ride_id=ride.ride_id,
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                date=ride.ride_date,
+                price= _total_price(ride.ride_id, prices, db),
+                state=''
+            )
+
+
+
+            rides_to_return.append(ride_to_return)
+    
+    return rides_to_return
+
+
+def upcoming_rider( current_user, db):
+    rides_to_return = []
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+    if not driver:
+        raise HTTPException(status_code=402, detail="User is not a driver")
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date > datetime.now().date()).all()
+    
+    for ride in rides:
+            prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
+            status = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'pending').first()
+            state = 'pending'
+            if status is None :
+                 state = ''
+
+            ride_to_return = HistoryOrUpcomingAsDriver(
+                ride_id=ride.ride_id,
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                date=ride.ride_date,
+                price= _total_price(ride.ride_id, prices, db),
+                state=state
+            )
+
+
+
+            rides_to_return.append(ride_to_return)
+    
+    return rides_to_return
 
 
 def _price(priceSet: PriceSet, people: int, small_packages: int, medium_packages: int, large_packages: int):
