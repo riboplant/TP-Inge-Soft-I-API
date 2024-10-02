@@ -102,7 +102,7 @@ def get_prices_and_cars(city_from: str, city_to: str, current_user, db):
     
 
 
-def prices_and_cars(ride: RideCreate, price: PriceSet, plate: str, driver_id:str, db: Session):
+def create_ride(ride: RideCreate, price: PriceSet, plate: str, driver_id:str, db: Session):
 
     ride_model = Rides()
 

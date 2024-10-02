@@ -1,6 +1,7 @@
 import requests
 from dotenv import load_dotenv
 from decouple import config
+import time
 
 load_dotenv()
 API_KEY = str(config('API_KEY_LOCATIONIQ'))    
@@ -41,7 +42,8 @@ def get_distance_between(city_from, city_to):
         lat_city_to, lon_city_to = get_coordinates(city_to)
     except:
         raise
-
+    
+    time.sleep(1)
     distance_km = _calculate_distance(lon_city_from, lat_city_from, lon_city_to, lat_city_to)
 
     if distance_km == None:
