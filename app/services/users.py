@@ -93,9 +93,6 @@ def get_cars(current_user, db):
     
     vehicle_list = [{"plate": vehicle.plate, "model": vehicle.model} for vehicle in vehicles]
     
-    if not vehicles:
-        raise HTTPException(status_code=403, detail="No vehicles found")
-    
     return vehicle_list
 
 
