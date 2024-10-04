@@ -1,56 +1,47 @@
-from schemas.rides_schemas import *
-from datetime import date
-from pydantic import Field
-from sqlalchemy import and_
-from dotenv import load_dotenv
+from datetime import date, datetime
 from uuid import uuid4
+
 from decouple import config
+from dotenv import load_dotenv
+from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, Depends, APIRouter
-from datetime import datetime
 
-
-
-from database.connect import get_db
-from database.models import *
+from database.models import Carrys, Drivers, Prices, Rides, Users, Vehicles, Drives
+from schemas.rides_schemas import HistoryOrUpcomingAsDriver, JoinRideData, PriceSet, RideCreate, RideDetailToReturn, rideToReturn
 from utils.locationIQAPI import get_distance_between, get_coordinates
 
 
-def get_ride(city_from: str, city_to: str, date: date, people:  int = Field(ge=0),small_packages: int = Field(ge=0),  medium_packages: int = Field(ge=0), large_packages: int = Field(ge=0)):
+def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
     ridesToRet = []
-
     
-    with next(get_db()) as db_session:
-        rides = db_session.query(Rides).filter(
-            and_(
-                Rides.city_from == city_from,
-                Rides.city_to == city_to,
-                Rides.ride_date == date,
-                Rides.available_space_large_package >= large_packages,
-                Rides.available_space_medium_package >= medium_packages,
-                Rides.available_space_small_package >= small_packages,
-                Rides.available_space_people >= people
-            )
-        ).all() 
+    rides = db.query(Rides).filter(
+        Rides.city_from == city_from,
+        Rides.city_to == city_to,
+        Rides.ride_date == date,
+        Rides.available_space_large_package >= large_packages,
+        Rides.available_space_medium_package >= medium_packages,
+        Rides.available_space_small_package >= small_packages,
+        Rides.available_space_people >= people
+    ).all() 
 
-        for ride in rides:
-            driver_user_id = db_session.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
-            driver_as_user = db_session.query(Users).filter(Users.user_id == driver_user_id).first()
-            priceSet = db_session.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
+    for ride in rides:
+        driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
+        driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
+        priceSet = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
 
-            ride_to_return = rideToReturn(
-                ride_id=ride.ride_id,
-                city_from=ride.city_from,
-                city_to=ride.city_to,
-                driver_name=driver_as_user.name,
-                driver_photo=driver_as_user.photo_url,
-                price=_price(priceSet, people, small_packages, medium_packages, large_packages),
-                date=ride.ride_date,
-                state=''
-            )
+        ride_to_return = rideToReturn(
+            ride_id=ride.ride_id,
+            city_from=ride.city_from,
+            city_to=ride.city_to,
+            driver_name=driver_as_user.name,
+            driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
+            price=_price(priceSet, people, small_packages, medium_packages, large_packages),
+            date=ride.ride_date,
+            state=''
+        )
 
-
-            ridesToRet.append(ride_to_return)
+        ridesToRet.append(ride_to_return)
     
     return ridesToRet
 
@@ -153,7 +144,7 @@ def create_ride(ride: RideCreate, price: PriceSet, plate: str, current_user, db)
     except:
         return HTTPException(status_code=500, detail="Error creating prices")
     
-    return 0
+    return JSONResponse(status_code=200, content={"message": "Success"})
 
 
 
@@ -230,7 +221,7 @@ def history_rider( current_user, db):
                 city_from=ride.city_from,
                 city_to=ride.city_to,
                 driver_name=driver_as_user.name,
-                driver_photo=driver_as_user.photo_url,
+                driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
                 price=_price(priceSet, ride.people, ride.small_packages, ride.medium_packages, ride.large_packages),
                 date=ride.ride_date,
                 state=''
@@ -244,9 +235,12 @@ def history_rider( current_user, db):
 def upcoming_rider( current_user, db):
     rides_to_return = []
    
-    rides = db.query(Carrys).join(Rides).filter(Carrys.user_id == current_user.user_id, Rides.ride_date > datetime.now().date()).all()
+    carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id).all()
     
-    for ride in rides:
+    for carry in carrys:
+            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date > datetime.now().date()).first()
+            if ride is None:
+                continue
             
             driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
             driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
@@ -257,10 +251,10 @@ def upcoming_rider( current_user, db):
                 city_from=ride.city_from,
                 city_to=ride.city_to,
                 driver_name=driver_as_user.name,
-                driver_photo=driver_as_user.photo_url,
-                price=_price(priceSet, ride.people, ride.small_packages, ride.medium_packages, ride.large_packages),
+                driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
+                price=_price(priceSet, carry.persons, carry.small_packages, carry.medium_packages, carry.large_Packages),
                 date=ride.ride_date,
-                state=ride.state
+                state=carry.state
             )
 
             rides_to_return.append(ride_to_return)
@@ -293,10 +287,10 @@ def get_ride_detail(ride_id, db):
                 city_from=ride.city_from,
                 city_to=ride.city_to,
                 driver_name=driver_as_user.name,
-                driver_photo=driver_as_user.photo_url,
-                price=55.8,
+                driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
+                price=0,
                 date=ride.ride_date,
-                state='',
+                state=None,
                 available_space_persons=ride.available_space_people,
                 available_space_small_package=ride.available_space_small_package,
                 available_space_medium_package=ride.available_space_medium_package,
@@ -304,12 +298,57 @@ def get_ride_detail(ride_id, db):
                 car_model=car.model,
                 car_plate=car.plate,
                 driver_id=ride.driver_id,
-                price_person=int(prices.price_person) if prices.price_person is not None else 0,
-                price_small_package=int(prices.price_small_package) if prices.price_small_package is not None else 0,
-                price_medium_package=int(prices.price_medium_package) if prices.price_medium_package is not None else 0,
-                price_large_package=int(prices.price_large_package) if prices.price_large_package is not None else 0,
+                price_person=prices.price_person,
+                price_small_package=prices.price_small_package,
+                price_medium_package=prices.price_medium_package,
+                price_large_package=prices.price_large_package,
                 start_maximum_time=ride.start_maximum_time,
                 start_minimum_time=ride.start_minimum_time
             )
 
     return ride_to_return
+
+
+
+def join_ride(data: JoinRideData, user,db):
+
+    ride = db.query(Rides).filter(Rides.ride_id == data.ride_id).first()
+    if not ride:
+        raise HTTPException(status_code=400, detail="Ride not found")
+    
+    if ride.available_space_people < data.people or ride.available_space_small_package < data.small_packages or ride.available_space_medium_package < data.medium_packages or ride.available_space_large_package < data.large_packages:
+        raise HTTPException(status_code=400, detail="Not enough space in the ride")
+    
+    if data.people == 0 and data.small_packages == 0 and data.medium_packages == 0 and data.large_packages == 0:
+        raise HTTPException(status_code=400, detail="You must carry at least one person or package")  
+
+
+    carry = Carrys(
+        ride_id = data.ride_id,
+        user_id = user.user_id,
+        persons = data.people,
+        small_packages = data.small_packages,
+        medium_packages = data.medium_packages,
+        large_Packages = data.large_packages,
+        state = 'pending'
+    )
+    
+    try:
+        db.add(carry)
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error joining ride")
+    
+    try:
+        setattr(ride, 'available_space_people', ride.available_space_people - data.people)
+        setattr(ride, 'available_space_small_package', ride.available_space_small_package - data.small_packages)
+        setattr(ride, 'available_space_medium_package', ride.available_space_medium_package - data.medium_packages)
+        setattr(ride, 'available_space_large_package', ride.available_space_large_package - data.large_packages)
+        db.commit()
+    except:
+        db.delete(carry)
+        db.commit()
+        raise HTTPException(status_code=500, detail="Error updating ride")
+
+
+    return JSONResponse(status_code=200, content={"message": "Success"})

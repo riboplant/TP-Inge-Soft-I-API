@@ -1,13 +1,18 @@
-from typing import List
 from fastapi import HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
-from schemas.users_schemas import *
-from database.models import *
+from schemas.users_schemas import Base_64, User, Vehicle
 from database.connect import get_db
 from services.auth import get_current_active_user
-from uuid import uuid4
-from services.users import *
-
+from services.users import (
+    get_user_data,
+    edit_photo,
+    delete_photo,
+    edit_name,
+    get_cars,
+    add_car,
+    remove_car,
+    make_driver
+)
 
 
 router = APIRouter(
@@ -52,12 +57,3 @@ async def remove_user_car(plate: str, current_user: User = Depends(get_current_a
 async def make_user_driver(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return make_driver(current_user, db)
 
-
-
-# @router.get("/{user_id}")
-# async def get_user_from_id(user_id : str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-#     response = db.query(Users).filter(Users.user_id == user_id).first()
-#     if response is None:
-#         return [{"Usuario": "Usuario con id = {user_id} no exits"}]
-    
-#     return response

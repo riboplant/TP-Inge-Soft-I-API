@@ -78,7 +78,7 @@ class rideToReturn(BaseModel):
     driver_photo: str 
     price: float = Field(ge=0)
     date: date
-    state: str
+    state: Optional[str] = None
 
 class HistoryOrUpcomingAsDriver(BaseModel):
     ride_id: str
@@ -100,9 +100,17 @@ class RideDetailToReturn(rideToReturn):
     car_model: str 
     car_plate: str 
     driver_id: str
-    price_person: int = Field(ge=0)
-    price_small_package: int = Field(ge=0)
-    price_medium_package: int = Field(ge=0)
-    price_large_package: int = Field(ge=0)
+    price_person: float 
+    price_small_package: float
+    price_medium_package: float
+    price_large_package: float
     start_maximum_time: time
     start_minimum_time: time
+
+
+class JoinRideData(BaseModel):
+    ride_id: str
+    people: int = Field(ge=0)
+    small_packages: int = Field(ge=0)
+    medium_packages: int = Field(ge=0)
+    large_packages: int = Field(ge=0)

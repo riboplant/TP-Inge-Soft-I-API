@@ -1,14 +1,11 @@
-from fastapi import HTTPException, Depends, status, APIRouter
+from fastapi import Depends, APIRouter
 from datetime import date
 from sqlalchemy.orm import Session
-from uuid import uuid4
-from utils.locationIQAPI import get_coordinates
+
 from controllers.auth import get_current_active_user
 from services import rides
-
-from schemas.rides_schemas import *
-from schemas.users_schemas import *
-from database.models import *
+from schemas.rides_schemas import RideCreate, PriceSet, JoinRideData
+from schemas.users_schemas import User
 from database.connect import get_db
 
 
@@ -21,7 +18,7 @@ router = APIRouter(
 
 #buscar viajes para personas
 @router.get("/search") 
-async def get_ride(city_from: str, city_to: str, date: date, people:  int , small_packages: int,  medium_packages: int, large_packages: int):
+async def get_ride(city_from: str, city_to: str, date: date, people:  int , small_packages: int,  medium_packages: int, large_packages: int, db: Session = Depends(get_db)):
     return rides.get_ride(city_from, city_to, date, people, small_packages,  medium_packages, large_packages) 
 
 
@@ -56,4 +53,8 @@ async def my_rides_upcoming( current_user: User = Depends(get_current_active_use
 @router.get("/detail/{ride_id}")
 async def get_ride_detail(ride_id: str, db: Session = Depends(get_db)):
     return rides.get_ride_detail(ride_id, db)
+
+@router.post("/join")
+async def join_ride(data: JoinRideData, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return rides.join_ride(data, current_user, db)
 
