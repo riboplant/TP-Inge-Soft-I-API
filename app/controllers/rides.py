@@ -53,18 +53,7 @@ async def history_rider( current_user: User = Depends(get_current_active_user), 
 async def my_rides_upcoming( current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
      return rides.upcoming_rider(current_user, db)
 
+@router.get("/detail/{ride_id}")
+async def get_ride_detail(ride_id: str, db: Session = Depends(get_db)):
+    return rides.get_ride_detail(ride_id, db)
 
-##VEEEEEEEEEEEEEEEEEEEEEEEEEEEEERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
-
-# #esto sirve para que el formulario de edicion de un viaje nos pida todos los datos y despues los edite y nos llamen al edit_ride
-# @router.get("/ride{ride_id}") #tiene que estar logueado y el viaje debe ser suyo
-# async def get_ride(ride_id : int):
-#     return ""
-
-# @router.put("/edit/{ride_id}")#tiene que estar logueado y el viaje debe ser suyo
-# async def edit_ride(ride_id : int):#si ya te pasaste de la fecha te decimos que no podes editar
-#     return "Vemos que retorna, puede ser un codigo nomas y listo"#creo que hay que definir un schema para Ride
-
-# @router.delete("/delete/{ride_id}")#tiene que estar logueado y el viaje debe ser suyo
-# async def edit_ride(ride_id : int): # si ya te pasaste de la fecha te decimos que no podes borrar
-#         return "Lo borre/no lo borre"

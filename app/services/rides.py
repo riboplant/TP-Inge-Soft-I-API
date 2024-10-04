@@ -277,3 +277,39 @@ def _total_price(ride_id, set_prices, db):
     for row in vec:
         sum += _price(set_prices, row.persons, row.small_packages, row.medium_packages, row.large_Packages)
     return sum
+
+
+def get_ride_detail(ride_id, db):
+     
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+    car = db.query(Vehicles).filter(Vehicles.plate == ride.car_plate).first()
+    driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
+    driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
+    prices = db.query(Prices).filter(Prices.ride_id == ride_id).first()
+
+
+    ride_to_return = RideDetailToReturn(
+                ride_id=ride.ride_id,
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                driver_name=driver_as_user.name,
+                driver_photo=driver_as_user.photo_url,
+                price=55.8,
+                date=ride.ride_date,
+                state='',
+                available_space_persons=ride.available_space_people,
+                available_space_small_package=ride.available_space_small_package,
+                available_space_medium_package=ride.available_space_medium_package,
+                available_space_large_package=ride.available_space_large_package,
+                car_model=car.model,
+                car_plate=car.plate,
+                driver_id=ride.driver_id,
+                price_person=int(prices.price_person) if prices.price_person is not None else 0,
+                price_small_package=int(prices.price_small_package) if prices.price_small_package is not None else 0,
+                price_medium_package=int(prices.price_medium_package) if prices.price_medium_package is not None else 0,
+                price_large_package=int(prices.price_large_package) if prices.price_large_package is not None else 0,
+                start_maximum_time=ride.start_maximum_time,
+                start_minimum_time=ride.start_minimum_time
+            )
+
+    return ride_to_return

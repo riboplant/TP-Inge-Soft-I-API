@@ -2,9 +2,9 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import date, time
 
-""" Schemas with all info """
+
 class Ride(BaseModel):
-    ride_id: str# = Field(le=32)
+    ride_id: str
     ubicationFrom: Optional[str] = None#str = Field(min_length=1, max_length=100)
     ubicationTo: Optional[str] = None#str = Field(min_length=1, max_length=100)
     city_from: Optional[str] = None#str = Field(min_length=1, max_length=100)
@@ -18,8 +18,8 @@ class Ride(BaseModel):
     real_end_time: Optional[time] = None
 
 class Carry(BaseModel):
-    ride_id: str = Field(le=32)
-    user_id: str = Field(le=32)
+    ride_id: str
+    user_id: str
     persons: int = Field(ge=0)
     small_packages: int = Field(ge=0)
     medium_packages: int = Field(ge=0)
@@ -27,7 +27,7 @@ class Carry(BaseModel):
 
 
 class Price(BaseModel):
-    ride_id: str = Field(le=32)
+    ride_id: str
     price_person: int = Field(ge=0)
     price_small_package: int = Field(ge=0)
     price_medium_package: int = Field(ge=0)
@@ -91,15 +91,15 @@ class HistoryOrUpcomingAsDriver(BaseModel):
 
 
 
-class rideDetailToReturn(rideToReturn):
+class RideDetailToReturn(rideToReturn):
 
     available_space_persons: int = Field(ge=0)
-    available_space_small_luggage: int = Field(ge=0)
-    available_space_medium_luggage: int = Field(ge=0)
-    available_space_large_luggage: int = Field(ge=0)
-    car_model: str = Field(min_length=1, max_length=50)
-    car_plate: str = Field(min_length=1, max_length=10)
-    driver_id: str = Field(le=32)
+    available_space_small_package: int = Field(ge=0)
+    available_space_medium_package: int = Field(ge=0)
+    available_space_large_package: int = Field(ge=0)
+    car_model: str 
+    car_plate: str 
+    driver_id: str
     price_person: int = Field(ge=0)
     price_small_package: int = Field(ge=0)
     price_medium_package: int = Field(ge=0)
