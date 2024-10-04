@@ -183,4 +183,24 @@ def make_driver(current_user, db):
     except:
         return HTTPException(status_code=500, detail="Error making user driver")
     
-    return driver_model.driver_id                     
+    return driver_model.driver_id
+
+def edit_name(name: str, current_user, db):
+    user_model = db.query(Users).filter(Users.user_id == current_user.user_id).first()
+    if user_model is None:
+        raise HTTPException(
+            status_code=401,
+            detail=f"ID {current_user.user_id} : Does not exist"
+        )
+    if not name or len(name) < 1:
+        raise HTTPException(status_code=400, detail="Nombre no puede estar vacío")
+    try:
+        setattr(user_model, "name", name)
+        db.commit()
+        db.refresh(user_model)
+    except:
+        raise HTTPException(
+            status_code=500,
+            detail="Error updating name in db"
+        )
+    return {"name": name}                 
