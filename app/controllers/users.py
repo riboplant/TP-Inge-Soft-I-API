@@ -28,9 +28,9 @@ async def edit_user_photo(base64Image: Base_64, current_user: User = Depends(get
 async def delete_user_photo(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return delete_photo(current_user, db)
 
-# @router.put("/edit/name")
-# async def edit_user_name(name: str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-#     return 0
+@router.put("/edit/name")
+async def edit_user_name(name: str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return edit_name(name, current_user, db)
 
 
 @router.get("/mycars")

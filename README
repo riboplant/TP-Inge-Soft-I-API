@@ -1,0 +1,4 @@
+Para ejecutar el backend, primero entrar al entorno virtual .venv corriendo:
+source .venv/bin/activate
+Luego, moverse al directorio app y correr:
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
