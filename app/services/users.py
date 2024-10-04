@@ -139,19 +139,19 @@ def remove_car(plate: str, current_user, db):
     
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
-        return HTTPException(status_code=403, detail="User is not a driver")
+        raise HTTPException(status_code=403, detail="User is not a driver")
 
     id = driver.driver_id
 
     drives = db.query(Drives).filter(Drives.plate == plate, Drives.driver_id == id).first()
     
     if not drives:
-        return HTTPException(status_code=401, detail="Vehicle not found")
+        raise HTTPException(status_code=401, detail="Vehicle not found")
     try:
         db.delete(drives)
         db.commit()
     except:
-        return HTTPException(status_code=500, detail="Error removing vehicle")
+        raise HTTPException(status_code=500, detail="Error removing vehicle")
 
     aux = db.query(Drives).filter(Drives.plate == plate).first()
 
@@ -161,14 +161,14 @@ def remove_car(plate: str, current_user, db):
             db.delete(car)
             db.commit()
         except:
-            return HTTPException(status_code=500, detail="Error removing vehicle")
+            raise HTTPException(status_code=500, detail="Error removing vehicle")
 
     return 0
 
 def make_driver(current_user, db):
 
     if(db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()):
-        return HTTPException(status_code=403, detail="User is already a driver")
+        raise HTTPException(status_code=403, detail="User is already a driver")
     
     driver_model = Drivers()
 
@@ -181,7 +181,7 @@ def make_driver(current_user, db):
         db.add(driver_model)
         db.commit()
     except:
-        return HTTPException(status_code=500, detail="Error making user driver")
+        raise HTTPException(status_code=500, detail="Error making user driver")
     
     return driver_model.driver_id
 

@@ -96,14 +96,17 @@ def get_prices_and_cars(city_from: str, city_to: str, current_user, db):
 
 def create_ride(ride: RideCreate, price: PriceSet, plate: str, current_user, db):
 #Check if user is a driver, check that the car is from the user
+
+    if plate is None or plate == '':
+        raise HTTPException(status_code=400, detail="Plate is required")
+    
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
-         return {"User is not a driver"}
-
+         raise HTTPException(status_code=402, detail="User is not a driver")
     driver_id = driver.driver_id
     check_plate = db.query(Drives).filter(Drives.plate == plate, Drives.driver_id == driver_id).first()
     if not check_plate:
-         return {"Car does not belong to the driver"}
+         raise HTTPException(status_code=400, detail="Car does not belong to the driver")
 
     ride_model = Rides(
         driver_id = driver_id,
@@ -136,13 +139,13 @@ def create_ride(ride: RideCreate, price: PriceSet, plate: str, current_user, db)
         db.commit()
         
     except:
-        return HTTPException(status_code=500, detail="Error creating ride")
+        raise HTTPException(status_code=500, detail="Error creating ride")
     
     try:     
         db.add(price_model)
         db.commit()
     except:
-        return HTTPException(status_code=500, detail="Error creating prices")
+        raise HTTPException(status_code=500, detail="Error creating prices")
     
     return JSONResponse(status_code=200, content={"message": "Success"})
 
