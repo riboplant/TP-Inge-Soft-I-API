@@ -19,7 +19,7 @@ router = APIRouter(
 #buscar viajes para personas
 @router.get("/search") 
 async def get_ride(city_from: str, city_to: str, date: date, people:  int , small_packages: int,  medium_packages: int, large_packages: int, db: Session = Depends(get_db)):
-    return rides.get_ride(city_from, city_to, date, people, small_packages,  medium_packages, large_packages) 
+    return rides.get_ride(city_from, city_to, date, people, small_packages,  medium_packages, large_packages, db) 
 
 
 #retorna los precios y -1 si no se encontro alguna de las ciudades
