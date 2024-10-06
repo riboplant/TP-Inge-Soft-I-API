@@ -123,3 +123,8 @@ class RequestToReturn(BaseModel):
     small_packages: int = Field(ge=0)
     medium_packages: int = Field(ge=0)
     large_packages: int = Field(ge=0)
+
+class AcceptedData(BaseModel):
+    ride_id: str
+    user_id: str
+    is_accepted: bool

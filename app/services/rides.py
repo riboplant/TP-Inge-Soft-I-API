@@ -382,3 +382,28 @@ def get_requests_pendings(ride_id,current_user, db):
         requests_to_return.append(request_to_return)
     
     return requests_to_return
+
+
+def is_accepted(data, current_user, db):
+    
+    ride = db.query(Rides).filter(Rides.ride_id == data.ride_id).first()
+    driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
+    driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
+    if driver_as_user.user_id != current_user.user_id:
+        raise HTTPException(status_code=401, detail="User is not the driver of the ride")
+    
+    carry = db.query(Carrys).filter(Carrys.ride_id == data.ride_id, Carrys.user_id == data.user_id).first()
+    if not carry:
+        raise HTTPException(status_code=400, detail="Request not found")
+    
+    if data.is_accepted:
+        setattr(carry, 'state', 'accepted')
+    else:
+        setattr(carry, 'state', 'rejected')
+    
+    try:
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error updating request")
+    
+    return JSONResponse(status_code=200, content={"message": "Success"})

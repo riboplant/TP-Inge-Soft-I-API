@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from controllers.auth import get_current_active_user
 from services import rides
-from schemas.rides_schemas import RideCreate, PriceSet, JoinRideData
+from schemas.rides_schemas import *
 from schemas.users_schemas import User
 from database.connect import get_db
 
@@ -61,3 +61,7 @@ async def join_ride(data: JoinRideData, current_user: User = Depends(get_current
 @router.get("/requests/pendings/{ride_id}")
 async def get_requests_pendings(ride_id: str, current_user: User = Depends(get_current_active_user) ,db: Session = Depends(get_db)):
     return rides.get_requests_pendings(ride_id, current_user, db)
+
+@router.put("/requests/isAccepted")
+async def is_accepted(data: AcceptedData, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return rides.is_accepted(data, current_user, db)
