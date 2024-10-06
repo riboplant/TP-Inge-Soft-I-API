@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from database.models import Carrys, Drivers, Prices, Rides, Users, Vehicles, Drives
-from schemas.rides_schemas import HistoryOrUpcomingAsDriver, JoinRideData, PriceSet, RideCreate, RideDetailToReturn, rideToReturn
+from schemas.rides_schemas import *
 from utils.locationIQAPI import get_distance_between, get_coordinates
 
 
@@ -355,3 +355,30 @@ def join_ride(data: JoinRideData, user,db):
 
 
     return JSONResponse(status_code=200, content={"message": "Success"})
+
+
+def get_requests_pendings(ride_id,current_user, db):
+
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+    driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
+    driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
+    if driver_as_user.user_id != current_user.user_id:
+        raise HTTPException(status_code=401, detail="User is not the driver of the ride")
+
+    requests = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.state == 'pending').all()
+    requests_to_return = []
+    for request in requests:
+        user = db.query(Users).filter(Users.user_id == request.user_id).first()
+        
+        request_to_return = RequestToReturn(
+            user_id = user.user_id,
+            user_name = user.name,
+            user_photo = user.photo_url if user.photo_url is not None else '',
+            people = request.persons,
+            small_packages = request.small_packages,
+            medium_packages = request.medium_packages,
+            large_packages = request.large_Packages
+        )
+        requests_to_return.append(request_to_return)
+    
+    return requests_to_return

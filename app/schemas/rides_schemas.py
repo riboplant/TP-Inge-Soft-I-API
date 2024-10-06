@@ -114,3 +114,12 @@ class JoinRideData(BaseModel):
     small_packages: int = Field(ge=0)
     medium_packages: int = Field(ge=0)
     large_packages: int = Field(ge=0)
+
+class RequestToReturn(BaseModel):
+    user_id: str
+    user_name: str
+    user_photo: str
+    people: int = Field(ge=0)
+    small_packages: int = Field(ge=0)
+    medium_packages: int = Field(ge=0)
+    large_packages: int = Field(ge=0)
