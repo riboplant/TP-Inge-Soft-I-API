@@ -50,9 +50,13 @@ async def history_rider( current_user: User = Depends(get_current_active_user), 
 async def my_rides_upcoming( current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
      return rides.upcoming_rider(current_user, db)
 
-@router.get("/detail/{ride_id}")
-async def get_ride_detail(ride_id: str, db: Session = Depends(get_db)):
-    return rides.get_ride_detail(ride_id, db)
+@router.get("/search/detail/{ride_id}")
+async def get_ride_search_detail(ride_id: str, db: Session = Depends(get_db)):
+    return rides.get_ride_search_detail(ride_id, db)
+
+@router.get("/rider/detail/{ride_id}")
+async def get_rider_detail(ride_id: str,current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return rides.get_rider_detail(ride_id, current_user, db)
 
 @router.post("/join")
 async def join_ride(data: JoinRideData, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):

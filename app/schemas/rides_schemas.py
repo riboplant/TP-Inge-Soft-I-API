@@ -107,6 +107,16 @@ class RideDetailToReturn(rideToReturn):
     start_maximum_time: time
     start_minimum_time: time
 
+class RideDetailUpcomingRider(rideToReturn):
+    space_persons: int = Field(ge=0)
+    space_small_package: int = Field(ge=0)
+    space_medium_package: int = Field(ge=0)
+    space_large_package: int = Field(ge=0)
+    car_model: str 
+    car_plate: str 
+    driver_id: str
+    start_maximum_time: time
+    start_minimum_time: time
 
 class JoinRideData(BaseModel):
     ride_id: str
