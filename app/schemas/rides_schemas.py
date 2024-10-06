@@ -86,7 +86,7 @@ class HistoryOrUpcomingAsDriver(BaseModel):
     city_to: str 
     price: float = Field(ge=0)
     date: date
-    state: str
+    state: Optional[str] = None
 
 
 

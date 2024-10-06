@@ -38,7 +38,7 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
             driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
             price=_price(priceSet, people, small_packages, medium_packages, large_packages),
             date=ride.ride_date,
-            state=''
+            state=None
         )
 
         ridesToRet.append(ride_to_return)
@@ -168,7 +168,7 @@ def history_driver( current_user, db):
                 city_to=ride.city_to,
                 date=ride.ride_date,
                 price= _total_price(ride.ride_id, prices, db),
-                state=''
+                state=None
             )
 
 
@@ -227,7 +227,7 @@ def history_rider( current_user, db):
                 driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
                 price=_price(priceSet, ride.people, ride.small_packages, ride.medium_packages, ride.large_packages),
                 date=ride.ride_date,
-                state=''
+                state=None
             )
 
             rides_to_return.append(ride_to_return)
@@ -399,7 +399,7 @@ def is_accepted(data, current_user, db):
     if data.is_accepted:
         setattr(carry, 'state', 'accepted')
     else:
-        setattr(carry, 'state', 'rejected')
+        setattr(carry, 'state', 'dismissed')
     
     try:
         db.commit()
