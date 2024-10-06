@@ -87,6 +87,8 @@ class HistoryOrUpcomingAsDriver(BaseModel):
     price: float = Field(ge=0)
     date: date
     state: Optional[str] = None
+    persons: int
+    packages: int
 
 
 
@@ -117,6 +119,21 @@ class RideDetailUpcomingRider(rideToReturn):
     driver_id: str
     start_maximum_time: time
     start_minimum_time: time
+
+class RideDetailHistoryDriver(BaseModel):
+    city_from: str 
+    city_to: str
+    date: date
+    start_maximum_time: time
+    start_minimum_time: time
+    persons: int = Field(ge=0)
+    small_package: int = Field(ge=0)
+    medium_package: int = Field(ge=0)
+    large_package: int = Field(ge=0)
+    price: float
+    car_model: str 
+    car_plate: str 
+
 
 class JoinRideData(BaseModel):
     ride_id: str

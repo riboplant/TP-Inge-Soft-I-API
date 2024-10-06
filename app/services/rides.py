@@ -160,7 +160,20 @@ def history_driver( current_user, db):
     
     for ride in rides:
             prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
+            status = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'accepted').first()
+            
+            persons=0
+            packages=0
 
+            carrys = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id).all()
+            for carry in carrys:
+                persons += carry.persons
+                packages += carry.small_packages + carry.medium_packages + carry.large_Packages
+
+            
+            state = 'pending'
+            if status is None :
+                 state = None
 
             ride_to_return = HistoryOrUpcomingAsDriver(
                 ride_id=ride.ride_id,
@@ -168,7 +181,9 @@ def history_driver( current_user, db):
                 city_to=ride.city_to,
                 date=ride.ride_date,
                 price= _total_price(ride.ride_id, prices, db),
-                state=None
+                state=state,
+                persons=persons,
+                packages=packages
             )
 
 
@@ -187,6 +202,16 @@ def upcoming_driver( current_user, db):
     for ride in rides:
             prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
             status = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'pending').first()
+            
+            persons=0
+            packages=0
+
+            carrys = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id).all()
+            for carry in carrys:
+                persons += carry.persons
+                packages += carry.small_packages + carry.medium_packages + carry.large_Packages
+
+            
             state = 'pending'
             if status is None :
                  state = None
@@ -197,7 +222,9 @@ def upcoming_driver( current_user, db):
                 city_to=ride.city_to,
                 date=ride.ride_date,
                 price= _total_price(ride.ride_id, prices, db),
-                state=state
+                state=state,
+                persons=persons,
+                packages=packages
             )
 
 
@@ -211,7 +238,7 @@ def upcoming_driver( current_user, db):
 def history_rider( current_user, db):
     rides_to_return = []
    
-    carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id, Carrys.state == 'pending').all()
+    carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id, Carrys.state == 'accepted').all()
     
     for carry in carrys:
             ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date <= datetime.now().date()).first()
@@ -286,7 +313,11 @@ def get_ride_search_detail(ride_id, db):
     driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
     driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
     prices = db.query(Prices).filter(Prices.ride_id == ride_id).first()
-
+    
+    status = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'pending').first()     
+    state = 'pending'
+    if status is None :
+        state = None
 
     ride_to_return = RideDetailToReturn(
                 ride_id=ride.ride_id,
@@ -296,7 +327,7 @@ def get_ride_search_detail(ride_id, db):
                 driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
                 price=0,
                 date=ride.ride_date,
-                state=None,
+                state=state,
                 available_space_persons=ride.available_space_people,
                 available_space_small_package=ride.available_space_small_package,
                 available_space_medium_package=ride.available_space_medium_package,
@@ -347,6 +378,41 @@ def get_rider_detail(ride_id, current_user, db):
 
     return ride_to_return
 
+
+def get_driver_history_detail(ride_id, current_user, db):
+     
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+    car = db.query(Vehicles).filter(Vehicles.plate == ride.car_plate).first()
+    prices = db.query(Prices).filter(Prices.ride_id == ride_id).first()
+
+    persons=0
+    small_packages=0
+    medium_packages=0
+    large_packages=0
+
+    carrys = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'accepted').all()
+    for carry in carrys:
+        persons += carry.persons
+        small_packages += carry.small_packages
+        medium_packages += carry.medium_packages
+        large_packages += carry.large_Packages
+
+    ride_to_return = RideDetailHistoryDriver(
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                price=_total_price(ride_id, prices,db),
+                date=ride.ride_date,
+                start_maximum_time=ride.start_maximum_time,
+                start_minimum_time=ride.start_minimum_time,
+                persons=persons,
+                small_package=small_packages,
+                medium_package=medium_packages,
+                large_package=large_packages,
+                car_model=car.model,
+                car_plate=car.plate          
+            )
+
+    return ride_to_return
 
 def join_ride(data: JoinRideData, user,db):
 
