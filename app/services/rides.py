@@ -156,7 +156,7 @@ def history_driver( current_user, db):
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
         raise HTTPException(status_code=402, detail="User is not a driver")
-    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date <= datetime.now().date()).all()
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date < datetime.now().date()).all()
     
     for ride in rides:
             prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
@@ -199,7 +199,7 @@ def upcoming_driver( current_user, db):
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
         raise HTTPException(status_code=402, detail="User is not a driver")
-    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date > datetime.now().date()).all()
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date >= datetime.now().date()).all()
     
     for ride in rides:
             prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
@@ -245,7 +245,7 @@ def history_rider( current_user, db):
     carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id, Carrys.state == 'accepted').all()
     
     for carry in carrys:
-            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date <= datetime.now().date()).first()
+            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date < datetime.now().date()).first()
             if ride is None:
                 continue
             
@@ -275,7 +275,7 @@ def upcoming_rider( current_user, db):
     carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id).all()
     
     for carry in carrys:
-            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date > datetime.now().date()).first()
+            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date >= datetime.now().date()).first()
             if ride is None:
                 continue
             
@@ -505,6 +505,10 @@ def is_accepted(data, current_user, db):
         setattr(carry, 'state', 'accepted')
     else:
         setattr(carry, 'state', 'dismissed')
+        setattr(ride, 'available_space_people', ride.available_space_people + carry.persons)
+        setattr(ride, 'available_space_small_package', ride.available_space_small_package + carry.small_packages)
+        setattr(ride, 'available_space_medium_package', ride.available_space_medium_package + carry.medium_packages)
+        setattr(ride, 'available_space_large_package', ride.available_space_large_package + carry.large_Packages)
     
     try:
         db.commit()
