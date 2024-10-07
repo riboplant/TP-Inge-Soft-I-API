@@ -98,30 +98,31 @@ def get_cars(current_user, db):
 
 def add_car(vehicle, current_user, db):
     
+    plate = vehicle.plate.split(" ")[0]
     
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
         raise HTTPException(status_code=403, detail="User is not a driver")
 
     id = driver.driver_id
-    car = db.query(Vehicles).filter(Vehicles.plate == vehicle.plate).first()
+    car = db.query(Vehicles).filter(Vehicles.plate == plate).first()
 
     if not car:
         vehicle_model = Vehicles()
         vehicle_model.color = vehicle.color
         vehicle_model.model = vehicle.model
         vehicle_model.status = "Unchecked"
-        vehicle_model.plate = vehicle.plate
+        vehicle_model.plate = plate
         try:
             db.add(vehicle_model)
             db.commit()
         except:
             raise HTTPException(status_code=500, detail="Error adding vehicle")
 
-    drives = db.query(Drives).filter(Drives.plate == vehicle.plate, Drives.driver_id == id).first()
+    drives = db.query(Drives).filter(Drives.plate == plate, Drives.driver_id == id).first()
     if not drives:
         drive_model = Drives()
-        drive_model.plate = vehicle.plate
+        drive_model.plate = plate
         drive_model.driver_id = id
         try:
             db.add(drive_model)
@@ -143,7 +144,7 @@ def remove_car(plate: str, current_user, db):
 
     id = driver.driver_id
 
-    drives = db.query(Drives).filter(Drives.plate == plate, Drives.driver_id == id).first()
+    drives = db.query(Drives).filter(Drives.plate == plate.split(" ")[0], Drives.driver_id == id).first()
     
     if not drives:
         raise HTTPException(status_code=404, detail="Vehicle not found")
@@ -154,7 +155,7 @@ def remove_car(plate: str, current_user, db):
         raise HTTPException(status_code=500, detail="Error removing vehicle")
 
     aux = db.query(Drives).filter(Drives.plate == plate).first()
-    ride = db.query(Rides).filter(Rides.plate == plate).first()
+    ride = db.query(Rides).filter(Rides.car_plate == plate).first()
 
     if not aux and not ride:
         car = db.query(Vehicles).filter(Vehicles.plate == plate).first()
@@ -163,7 +164,8 @@ def remove_car(plate: str, current_user, db):
             db.commit()
         except:
             raise HTTPException(status_code=500, detail="Error removing vehicle")
-
+    else: 
+        return {"message": "Vehicle no longer available"}
     return {"message": "Vehicle removed successfully"}
 
 def make_driver(current_user, db):
