@@ -47,11 +47,11 @@ class UserInDB(User):
     # Modelo para la creación de usuarios (contiene la contraseña)
 class UserCreate(BaseModel):
     name: str = Field(min_length=1)
-    email: str = Field(min_length=5, max_length=50)
-    password: str = Field(min_length=8)
-    address: Optional[str] = Field(min_length=5)
+    email: str 
+    password: str 
+    address: Optional[str]
     dni: int
-    photo_url: Optional[str]
+    photo_url: Optional[str] = None
 
 class Driver(BaseModel):
     user_id: int = Field(ge=0)

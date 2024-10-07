@@ -160,15 +160,17 @@ def history_driver( current_user, db):
     
     for ride in rides:
             prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
-            status = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'accepted').first()
+            status = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'pending').first()
             
             persons=0
             packages=0
+            price = 0
 
-            carrys = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id).all()
+            carrys = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'accepted').all()
             for carry in carrys:
                 persons += carry.persons
                 packages += carry.small_packages + carry.medium_packages + carry.large_Packages
+                price += _price(prices, carry.persons, carry.small_packages, carry.medium_packages, carry.large_Packages)
 
             
             state = 'pending'
@@ -180,7 +182,7 @@ def history_driver( current_user, db):
                 city_from=ride.city_from,
                 city_to=ride.city_to,
                 date=ride.ride_date,
-                price= _total_price(ride.ride_id, prices, db),
+                price= price,
                 state=state,
                 persons=persons,
                 packages=packages
@@ -205,11 +207,13 @@ def upcoming_driver( current_user, db):
             
             persons=0
             packages=0
+            price = 0
 
-            carrys = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id).all()
+            carrys = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'accepted').all()
             for carry in carrys:
                 persons += carry.persons
                 packages += carry.small_packages + carry.medium_packages + carry.large_Packages
+                price += _price(prices, carry.persons, carry.small_packages, carry.medium_packages, carry.large_Packages)
 
             
             state = 'pending'
@@ -221,7 +225,7 @@ def upcoming_driver( current_user, db):
                 city_from=ride.city_from,
                 city_to=ride.city_to,
                 date=ride.ride_date,
-                price= _total_price(ride.ride_id, prices, db),
+                price= price,
                 state=state,
                 persons=persons,
                 packages=packages
