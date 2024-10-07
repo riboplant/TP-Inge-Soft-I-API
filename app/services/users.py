@@ -146,7 +146,7 @@ def remove_car(plate: str, current_user, db):
     drives = db.query(Drives).filter(Drives.plate == plate, Drives.driver_id == id).first()
     
     if not drives:
-        raise HTTPException(status_code=401, detail="Vehicle not found")
+        raise HTTPException(status_code=404, detail="Vehicle not found")
     try:
         db.delete(drives)
         db.commit()
@@ -154,8 +154,9 @@ def remove_car(plate: str, current_user, db):
         raise HTTPException(status_code=500, detail="Error removing vehicle")
 
     aux = db.query(Drives).filter(Drives.plate == plate).first()
+    ride = db.query(Rides).filter(Rides.plate == plate).first()
 
-    if not aux:
+    if not aux and not ride:
         car = db.query(Vehicles).filter(Vehicles.plate == plate).first()
         try:
             db.delete(car)
@@ -163,7 +164,7 @@ def remove_car(plate: str, current_user, db):
         except:
             raise HTTPException(status_code=500, detail="Error removing vehicle")
 
-    return 0
+    return {"message": "Vehicle removed successfully"}
 
 def make_driver(current_user, db):
 
