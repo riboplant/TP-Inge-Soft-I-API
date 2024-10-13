@@ -23,8 +23,15 @@ def get_user_data(current_user, db):
         email=user_model.email,
         address=user_model.address,
         dni=user_model.dni,
-        photo_url=user_model.photo_url
+        photo_url=user_model.photo_url,
+        is_driver=False
     )
+
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+
+    if driver:
+        user.is_driver = True
+    
 
     return user
 
@@ -131,7 +138,7 @@ def add_car(vehicle, current_user, db):
             raise HTTPException(status_code=500, detail="Error adding vehicle to driver")
     
     else:
-        raise HTTPException(status_code=401, detail="Vehicle already added")
+        raise HTTPException(status_code=402, detail="Vehicle already added")
     
     return {"message": "Vehicle added successfully"}
 
