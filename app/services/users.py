@@ -79,4 +79,5 @@ def delete_photo(current_user, db):
             detail="Error deleting image"
         )
     
+    # return JSONResponse(status_code=status.HTTP_303_SEE_OTHER, content={"message": "Example of a wrong message"})
     return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Image deleted successfully"})
