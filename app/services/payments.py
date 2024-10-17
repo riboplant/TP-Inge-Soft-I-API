@@ -38,28 +38,34 @@ def create_payment(title:str, quantity:int, unit_price:float, metadata: str):
     # Esto es una url de mp a la que mandamos al usuario
     return preference["init_point"]
 
-def get_payment(id: int, db: Session = Depends(get_db)):
+def get_payment(id: int, db: Session):
     
     request = sdk.payment().get(id)
+
     print(request)
-    return
 
-
-    # Tengo que ver si es asi con punto o como arriba con["att"]
-    if response.status_code != 200:
-        return {"status": "error", "message": f"La solicitud falló con el código de estado {response.status_code}"}
+    if request["status"] != 200:
+        print("La solicitud falló con el código de estado " + str(request["status"]))
+        return 
     
-    payment = response.results[0]
-    if payment.id != id or payment.status == 'rejected':
-        return {"status": "error", "message": f"La solicitud falló con el código de estado {response.status_code}"}
+    response = request["response"] # Aca  esta toda la info
+
+ 
+    if response["status"] != "approved":
+        print("Payment not approved yet")
+        return
         
     payment_info = Payments(
-        ride_id=payment.description,
-        payment_id=id,
-        amount=payment.transaction_amount,
-        status=payment.status,
-        currency=payment.currency_id
+        ride_id = response["metadata"]["info"],
+        payment_id = str(id),
+        amount = float(response["transaction_amount"]),
+        status = response["status"],
+        currency = response["currency_id"],
+        time = response["date_created"]
     )
+    for i in range(3) :
+        print("")
+    print(payment_info.__dict__)
 
     try:
         db.add(payment_info)
@@ -68,5 +74,5 @@ def get_payment(id: int, db: Session = Depends(get_db)):
         return HTTPException(status_code=500, detail="Error adding the payment")
   
 
-    return JSONResponse(status_code=200, content={"message": "Success"})
+    return JSONResponse(status_code=200, content={"message": "Successfully added the payment"})
 

@@ -146,7 +146,8 @@ class Payments(Base):
     )
 
     ride_id = Column(String)
-    payment_id = Column(Integer)
+    payment_id = Column(String)
     amount = Column(Float(53))
     currency = Column(String)
     status = Column(String)
+    time = Column(String)
