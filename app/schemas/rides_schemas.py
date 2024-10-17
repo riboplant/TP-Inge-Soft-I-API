@@ -114,3 +114,9 @@ class JoinRideData(BaseModel):
     small_packages: int = Field(ge=0)
     medium_packages: int = Field(ge=0)
     large_packages: int = Field(ge=0)
+
+class PaymentData(BaseModel):
+    payment_id: int
+    amount: float = Field(ge=0)
+    currency: str
+    status: str
