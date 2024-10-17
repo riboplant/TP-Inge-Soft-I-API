@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from database.connect import get_db
 from config import PaymentSettings
@@ -35,14 +35,14 @@ def create_payment(title:str, quantity:int, unit_price:float, metadata: str):
 
     preference_response = sdk.preference().create(preference_data)
     preference = preference_response["response"]
+    link = preference["init_point"]
     # Esto es una url de mp a la que mandamos al usuario
-    return preference["init_point"]
+    return {"link" : f"{link}"}
 
 def get_payment(id: int, db: Session):
     
     request = sdk.payment().get(id)
 
-    print(request)
 
     if request["status"] != 200:
         print("La solicitud falló con el código de estado " + str(request["status"]))
@@ -71,9 +71,6 @@ def get_payment(id: int, db: Session):
         currency = response["currency_id"],
         time = response["date_created"]
     )
-    for i in range(3) :
-        print("")
-    print(payment_info.__dict__)
 
     try:
         db.add(payment_info)

@@ -14,20 +14,12 @@ router = APIRouter(
 
 @router.post("/create")
 async def create_payment_for_ride(title:str, price:float, ride_id: str, db: Session = Depends(get_db)):
-    link = create_payment(title=title, quantity=1, unit_price=price, metadata=ride_id)
-    return {"link" : link}
+    return create_payment(title=title, quantity=1, unit_price=price, metadata=ride_id)
 
 @router.post("/owl")
 async def get_payment_info(request: Request, db: Session = Depends(get_db)):
-    print(request.headers)
     response = await request.json()
-    print(response)
-    id = int(response["data"]["id"])
-    #print(str(response["id"]) + "   " + str(response["date_created"]))
-    print(id, id.__class__)
-
-    get_payment(id, db)
-    
+    get_payment(int(response["data"]["id"]), db)
     return Response(status_code=200)
     # La clave secreta esta en un header, en x-signature-id
     # No esta ese header en este momento
