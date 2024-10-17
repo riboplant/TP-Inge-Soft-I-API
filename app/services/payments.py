@@ -58,7 +58,7 @@ def get_payment(id: int, db: Session):
     ride = db.query(Rides).filter(Rides.ride_id == response["metadata"]["info"]).first()
     not_repeated_check = db.query(Payments).filter(Payments.ride_id == response["metadata"]["info"]).first()
     not_same_payment_id_check = db.query(Payments).filter(Payments.payment_id == str(id)).first()
-    
+
     if ride == None or not_repeated_check != None or not_same_payment_id_check != None:
         return
     
@@ -84,3 +84,13 @@ def get_payment(id: int, db: Session):
 
     return JSONResponse(status_code=200, content={"message": "Successfully added the payment"})
 
+def get_ride_payment(ride_id: str, db: Session):
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+    if ride == None:
+        return {"Error": "Not ride with that id"}
+    
+    payment = db.query(Payments).filter(Payments.ride_id == ride_id).first()
+    if payment == None:
+        return {"Error": "Not payment for thay ride"}
+    
+    return {"payment_id": f"{payment.payment_id}"}

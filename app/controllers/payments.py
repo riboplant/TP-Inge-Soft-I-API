@@ -4,7 +4,7 @@ from schemas.users_schemas import Base_64, User, Vehicle
 from schemas.rides_schemas import PaymentData
 from database.connect import get_db
 from services.auth import get_current_active_user
-from services.payments import sdk, create_payment, get_payment
+from services.payments import sdk, create_payment, get_payment, get_ride_payment
 
 
 router = APIRouter(
@@ -32,3 +32,6 @@ async def get_payment_info(request: Request, db: Session = Depends(get_db)):
     # La clave secreta esta en un header, en x-signature-id
     # No esta ese header en este momento
 
+@router.get("check_ride_payment")
+async def check_ride_payment(ride_id: str, db:Session = Depends(get_db)):
+    return get_ride_payment(ride_id=ride_id, db=db)
