@@ -4,7 +4,7 @@ from database.connect import get_db
 from config import PaymentSettings
 import requests
 import mercadopago
-from database.models import Payments
+from database.models import Payments, Rides
 from sqlalchemy.orm import Session
 
 sdk = mercadopago.SDK(PaymentSettings.MP_ACCESS_TOKEN)
@@ -54,6 +54,14 @@ def get_payment(id: int, db: Session):
     if response["status"] != "approved":
         print("Payment not approved yet")
         return
+    
+    ride = db.query(Rides).filter(Rides.ride_id == response["metadata"]["info"]).first()
+    not_repeated_check = db.query(Payments).filter(Payments.ride_id == response["metadata"]["info"]).first()
+    not_same_payment_id_check = db.query(Payments).filter(Payments.payment_id == str(id)).first()
+    
+    if ride == None or not_repeated_check != None or not_same_payment_id_check != None:
+        return
+    
         
     payment_info = Payments(
         ride_id = response["metadata"]["info"],

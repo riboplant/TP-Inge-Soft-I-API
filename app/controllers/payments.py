@@ -27,7 +27,6 @@ async def get_payment_info(request: Request, db: Session = Depends(get_db)):
     print(id, id.__class__)
 
     get_payment(id, db)
-    print("Sali de get_payment")
     
     return Response(status_code=200)
     # La clave secreta esta en un header, en x-signature-id
