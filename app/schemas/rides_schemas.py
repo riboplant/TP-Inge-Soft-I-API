@@ -155,3 +155,10 @@ class AcceptedData(BaseModel):
     ride_id: str
     user_id: str
     is_accepted: bool
+
+    
+class PaymentData(BaseModel):
+    payment_id: int
+    amount: float = Field(ge=0)
+    currency: str
+    status: str
