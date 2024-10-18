@@ -4,26 +4,27 @@ from database.connect import get_db
 from config import PaymentSettings
 import requests
 import mercadopago
-from database.models import Payments, Rides
+from database.models import *
 from sqlalchemy.orm import Session
+import json
 
 sdk = mercadopago.SDK(PaymentSettings.MP_ACCESS_TOKEN)
 
-def create_preference_data(title:str, quantity:int, unit_price:float, text: str):
+def create_preference_data(title:str, quantity:int, unit_price:float, text:str):
     if(quantity <= 0 or unit_price <= 0):
         raise Exception("Illegal arguments for payment creation")
     return {
-    "items": [
-        {
-            "title": title,
-            "quantity": quantity,
-            "unit_price": unit_price,
+        "items": [
+            {
+                "title": title,
+                "quantity": quantity,
+                "unit_price": unit_price,
+            }
+        ],
+        "metadata": {
+            "info": text
         }
-    ],
-    "metadata": {
-        "info": text
     }
-}
 
 def create_payment(title:str, quantity:int, unit_price:float, metadata: str):
     try:
@@ -55,16 +56,19 @@ def get_payment(id: int, db: Session):
         print("Payment not approved yet")
         return
     
-    ride = db.query(Rides).filter(Rides.ride_id == response["metadata"]["info"]).first()
-    not_repeated_check = db.query(Payments).filter(Payments.ride_id == response["metadata"]["info"]).first()
-    not_same_payment_id_check = db.query(Payments).filter(Payments.payment_id == str(id)).first()
+    metadataJson = json.loads(response["metadata"]["info"])
+    
+    carry = db.query(Carrys).filter(Carrys.user_id == metadataJson.user_id, Carrys.ride_id == metadataJson.ride_id).first()
 
-    if ride == None or not_repeated_check != None or not_same_payment_id_check != None:
-        return
+    if carry == None: #esto me hace ruido pero lo valido por las dudas
+        return HTTPException(status_code=404, detail="No ride found")
+
+    if carry.payment_id != None:
+        return HTTPException(status_code=400, detail="Payment already processed")
+    
     
         
     payment_info = Payments(
-        ride_id = response["metadata"]["info"],
         payment_id = str(id),
         amount = float(response["transaction_amount"]),
         status = response["status"],
@@ -73,6 +77,9 @@ def get_payment(id: int, db: Session):
     )
 
     try:
+        if(response["status"] == "approved"):
+            setattr(carry, "payment_id", str(id))
+        
         db.add(payment_info)
         db.commit()
     except:

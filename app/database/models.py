@@ -115,6 +115,7 @@ class Carrys(Base):
 
     ride_id = Column(String, nullable=False, index=True)
     user_id = Column(String, nullable=False)
+    payment_id = Column(String, nullable=False)
     persons = Column(Integer)
     small_packages = Column(Integer)
     medium_packages = Column(Integer)
@@ -140,12 +141,11 @@ class Prices(Base):
 
 class Payments(Base):
     __tablename__ = 'payments'
+
     __table_args__ = (
-        ForeignKeyConstraint(['ride_id'], ['rides.ride_id'], name='payments_ride_id_payment_id_key'),
-        PrimaryKeyConstraint('ride_id', name='payments_pkey')
+        PrimaryKeyConstraint('payment_id', name='payments_pkey'),
     )
 
-    ride_id = Column(String)
     payment_id = Column(String)
     amount = Column(Float(53))
     currency = Column(String)
