@@ -10,7 +10,7 @@ import json
 
 sdk = mercadopago.SDK(PaymentSettings.MP_ACCESS_TOKEN)
 
-def create_preference_data(title:str, quantity:int, unit_price:float, text:str):
+def create_preference_data(title:str, quantity:int, unit_price:float, text:json):
     if(quantity <= 0 or unit_price <= 0):
         raise Exception("Illegal arguments for payment creation")
     return {
@@ -26,7 +26,7 @@ def create_preference_data(title:str, quantity:int, unit_price:float, text:str):
         }
     }
 
-def create_payment(title:str, quantity:int, unit_price:float, metadata: str):
+def create_payment(title:str, quantity:int, unit_price:float, metadata:json):
     try:
         preference_data = create_preference_data(title=title, quantity=quantity, unit_price=unit_price, text=metadata)
     except Exception as e:
@@ -56,15 +56,18 @@ def get_payment(id: int, db: Session):
         print("Payment not approved yet")
         return
     
-    metadataJson = json.loads(response["metadata"]["info"])
+
     
-    carry = db.query(Carrys).filter(Carrys.user_id == metadataJson.user_id, Carrys.ride_id == metadataJson.ride_id).first()
+    metadata = response["metadata"]["info"]
+    metadata_dict = json.loads(metadata)
 
-    if carry == None: #esto me hace ruido pero lo valido por las dudas
-        return HTTPException(status_code=404, detail="No ride found")
+    carry = db.query(Carrys).filter(Carrys.user_id == metadata_dict["user_id"], Carrys.ride_id == metadata_dict["ride_id"]).first()
 
-    if carry.payment_id != None:
-        return HTTPException(status_code=400, detail="Payment already processed")
+    # if carry == None: #esto me hace ruido pero lo valido por las dudas
+    #     return HTTPException(status_code=404, detail="No ride found")
+
+    # if carry.payment_id != None:
+    #     return HTTPException(status_code=400, detail="Payment already processed")
     
     
         
@@ -77,13 +80,16 @@ def get_payment(id: int, db: Session):
     )
 
     try:
-        if(response["status"] == "approved"):
-            setattr(carry, "payment_id", str(id))
-        
         db.add(payment_info)
         db.commit()
+
+        if(response["status"] == "approved"):
+            setattr(carry, "payment_id", str(id))
+
+        db.commit()
+        
     except:
-        return HTTPException(status_code=500, detail="Error adding the payment")
+        return 
   
 
     return JSONResponse(status_code=200, content={"message": "Successfully added the payment"})
