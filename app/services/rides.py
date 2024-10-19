@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from database.models import Carrys, Drivers, Prices, Rides, Users, Vehicles, Drives
 from schemas.rides_schemas import *
 from utils.locationIQAPI import get_distance_between, get_coordinates
+from utils.notifications import send_notification
 
 
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
@@ -418,7 +419,7 @@ def get_driver_history_detail(ride_id, current_user, db):
 
     return ride_to_return
 
-def join_ride(data: JoinRideData, user,db):
+async def join_ride(data: JoinRideData, user,db):
 
     ride = db.query(Rides).filter(Rides.ride_id == data.ride_id).first()
     if not ride:
@@ -430,6 +431,12 @@ def join_ride(data: JoinRideData, user,db):
     if data.people == 0 and data.small_packages == 0 and data.medium_packages == 0 and data.large_packages == 0:
         raise HTTPException(status_code=400, detail="You must carry at least one person or package")  
 
+    driver_as_user = db.query(Users).filter(Users.user_id == db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id).first()
+
+    try:
+        await send_notification(driver_as_user.user_id, "Nueva solicitud!", f"{user.name} quiere unirse a tu viaje.")
+    except:
+        raise HTTPException(status_code=500, detail="Error sending notification")
 
     carry = Carrys(
         ride_id = data.ride_id,
@@ -489,7 +496,7 @@ def get_requests_pendings(ride_id,current_user, db):
     return requests_to_return
 
 
-def is_accepted(data, current_user, db):
+async def is_accepted(data, current_user, db):
     
     ride = db.query(Rides).filter(Rides.ride_id == data.ride_id).first()
     driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
@@ -503,7 +510,9 @@ def is_accepted(data, current_user, db):
     
     if data.is_accepted:
         setattr(carry, 'state', 'accepted')
+        await send_notification(carry.user_id, "Solicitud aceptada!", f"{driver_as_user.name} aceptó tu solicitud.")
     else:
+        await send_notification(carry.user_id, "Solicitud rechazada!", f"{driver_as_user.name} rechazó tu solicitud.")
         setattr(carry, 'state', 'dismissed')
         setattr(ride, 'available_space_people', ride.available_space_people + carry.persons)
         setattr(ride, 'available_space_small_package', ride.available_space_small_package + carry.small_packages)

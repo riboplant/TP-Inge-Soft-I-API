@@ -65,7 +65,7 @@ async def get_driver_history_detail(ride_id: str,current_user: User = Depends(ge
 
 @router.post("/join")
 async def join_ride(data: JoinRideData, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    return rides.join_ride(data, current_user, db)
+    return await rides.join_ride(data, current_user, db)
 
 @router.get("/requests/pendings/{ride_id}")
 async def get_requests_pendings(ride_id: str, current_user: User = Depends(get_current_active_user) ,db: Session = Depends(get_db)):
@@ -73,4 +73,4 @@ async def get_requests_pendings(ride_id: str, current_user: User = Depends(get_c
 
 @router.put("/requests/isAccepted")
 async def is_accepted(data: AcceptedData, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    return rides.is_accepted(data, current_user, db)
+    return await rides.is_accepted(data, current_user, db)

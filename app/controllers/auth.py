@@ -36,7 +36,7 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 @router.post("/users/register")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     try:
-        print(user)
+        
         user_model = Users()
         
         user_model.user_id = str(uuid4())
@@ -55,6 +55,6 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(user_model)
         
-        return {"msg": "User registered successfully"}
+        return {"user_id": user_model.user_id}
     except Exception as e:
         raise HTTPException(status_code=422, detail=str(e))
