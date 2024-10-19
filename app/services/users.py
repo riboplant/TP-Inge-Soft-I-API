@@ -24,7 +24,8 @@ def get_user_data(current_user, db):
         address=user_model.address,
         dni=user_model.dni,
         photo_url=user_model.photo_url,
-        is_driver=False
+        is_driver=False,
+        user_id=user_model.user_id
     )
 
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()

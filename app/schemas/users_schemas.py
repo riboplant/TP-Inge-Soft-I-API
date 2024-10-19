@@ -20,6 +20,7 @@ class UserData(BaseModel):
     dni: Optional[int]
     photo_url: Optional[str]
     is_driver: Optional[bool]
+    user_id: str
 
 class PhotoURLS(BaseModel):
     photo_url: str
