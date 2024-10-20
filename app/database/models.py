@@ -151,3 +151,33 @@ class Payments(Base):
     currency = Column(String)
     status = Column(String)
     time = Column(String)
+
+
+class RiderDriverComment(Base):
+    __tablename__ = 'rider_driver_comment'
+    __table_args__ = (
+        ForeignKeyConstraint(['ride_id'], ['rides.ride_id'], name='rider_driver_comment_ride_id_fkey'),
+        ForeignKeyConstraint(['user_id'], ['users.user_id'], name='rider_driver_comment_user_id_fkey'),
+        ForeignKeyConstraint(['driver_id'], ['drivers.driver_id'], name='rider_driver_comment_driver_id_fkey'),
+        PrimaryKeyConstraint('ride_id', 'user_id', 'driver_id', name='rider_driver_comment_pkey')
+    )
+    ride_id = Column(String, nullable=False)
+    user_id = Column(String, nullable=False)
+    driver_id = Column(String, nullable=False)
+    rating = Column(Integer)
+    comment = Column(String)
+
+
+class DriverRiderComment(Base):
+    __tablename__ = 'driver_rider_comment'
+    __table_args__ = (
+        ForeignKeyConstraint(['ride_id'], ['rides.ride_id'], name='driver_rider_comment_ride_id_fkey'),
+        ForeignKeyConstraint(['user_id'], ['users.user_id'], name='driver_rider_comment_user_id_fkey'),
+        ForeignKeyConstraint(['driver_id'], ['drivers.driver_id'], name='driver_rider_comment_driver_id_fkey'),
+        PrimaryKeyConstraint('ride_id', 'user_id', 'driver_id', name='driver_rider_comment_pkey')
+    )
+    ride_id = Column(String, nullable=False)
+    user_id = Column(String, nullable=False)
+    driver_id = Column(String, nullable=False)
+    rating = Column(Integer)
+    comment = Column(String)
