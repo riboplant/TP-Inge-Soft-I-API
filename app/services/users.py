@@ -215,3 +215,61 @@ def edit_name(name: str, current_user, db):
             detail="Error updating name in db"
         )
     return {"name": name}                 
+
+
+
+def get_driver_profile(driver_id: str, db: Session):
+    driver = db.query(Drivers).filter(Drivers.driver_id == driver_id).first()
+    if not driver:
+        raise HTTPException(status_code=404, detail="Driver not found")
+
+    comments = db.query(RiderDriverComment).filter(RiderDriverComment.driver_id == driver_id).all()
+    comment_list = [
+        Comment(
+            comment=comment.comment,
+            rating=comment.rating,
+            name=db.query(Users).filter(Users.user_id == comment.user_id).first().name,
+            photo_url=db.query(Users).filter(Users.user_id == comment.user_id).first().photo_url,
+            date=db.query(Rides).filter(Rides.ride_id == comment.ride_id).first().date
+        ) for comment in comments
+    ]
+
+    profile_data = ProfileData(
+        name=db.query(Users).filter(Users.user_id == driver.user_id).first().name,
+        email=db.query(Users).filter(Users.user_id == driver.user_id).first().email,
+        photo_url=db.query(Users).filter(Users.user_id == driver.user_id).first().photo_url,
+        rating=driver.driver_rating,
+        comments=comment_list
+    )
+
+    return profile_data
+
+
+def get_rider_profile(user_id: str, db: Session):
+    user = db.query(Users).filter(Users.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    comments = db.query(DriverRiderComment).filter(DriverRiderComment.user_id == user_id).all()
+    comment_list = []
+    for comment in comments:
+        driver_as_user = db.query(Users).filter(Users.user_id == (db.query(Drivers).filter(Drivers.driver_id == comment.driver_id).user_id)).first()
+        comment_list.append(
+            Comment(
+                comment=comment.comment,
+                rating=comment.rating,
+                name=driver_as_user.name,
+                photo_url=driver_as_user.photo_url,
+                date=db.query(Rides).filter(Rides.ride_id == comment.ride_id).first().date
+            )
+        )
+
+    profile_data = ProfileData(
+        name=user.name,
+        email=user.email,
+        photo_url=user.photo_url,
+        rating=user.rider_rating,
+        comments=comment_list
+    )
+
+    return profile_data

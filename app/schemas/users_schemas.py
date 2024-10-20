@@ -74,5 +74,24 @@ class Drive(BaseModel):
     plate: str = Field()
 
 
+class Comment(BaseModel):
+    comment: str = Field()
+    rating: int = Field(ge=0, le=5)
+    name: str = Field()
+    photo_url: str = Field()
+    date: str = Field()
+
+
+class ProfileData(BaseModel):
+    name: str = Field()
+    email: str = Field()
+    photo_url: str = Field()
+    rating: int = Field(ge=0, le=5)
+    comments: list[Comment] = Field()
+    
+
+
+
+
 """ Specefic schemas for endpoint purposes """
 
