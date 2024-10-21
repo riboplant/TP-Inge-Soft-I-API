@@ -78,14 +78,14 @@ class Comment(BaseModel):
     comment: str = Field()
     rating: int = Field(ge=0, le=5)
     name: str = Field()
-    photo_url: str = Field()
+    photo_url: Optional[str] = None
     date: str = Field()
 
 
 class ProfileData(BaseModel):
     name: str = Field()
     email: str = Field()
-    photo_url: str = Field()
+    photo_url: Optional[str] = None
     rating: int = Field(ge=0, le=5)
     comments: list[Comment] = Field()
     
