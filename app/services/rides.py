@@ -512,9 +512,16 @@ async def is_accepted(data, current_user, db):
     
     if data.is_accepted:
         setattr(carry, 'state', 'accepted')
-        await send_notification(carry.user_id, "Solicitud aceptada!", f"{driver_as_user.name} aceptó tu solicitud.")
+        try:
+            await send_notification(carry.user_id, "Solicitud aceptada!", f"{driver_as_user.name} aceptó tu solicitud.")
+        except:
+            raise HTTPException(status_code=880, detail="Error sending notification")
+        
     else:
-        await send_notification(carry.user_id, "Solicitud rechazada!", f"{driver_as_user.name} rechazó tu solicitud.")
+        try:
+            await send_notification(carry.user_id, "Solicitud rechazada!", f"{driver_as_user.name} rechazó tu solicitud.")
+        except:
+            raise HTTPException(status_code=880, detail="Error sending notification")
         setattr(carry, 'state', 'dismissed')
         setattr(ride, 'available_space_people', ride.available_space_people + carry.persons)
         setattr(ride, 'available_space_small_package', ride.available_space_small_package + carry.small_packages)
