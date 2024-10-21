@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import date, time
 
 class User(BaseModel):
     user_id: str = Field()
@@ -79,14 +80,14 @@ class Comment(BaseModel):
     rating: int = Field(ge=0, le=5)
     name: str = Field()
     photo_url: Optional[str] = None
-    date: str = Field()
+    comment_date: Optional[date] = None
 
 
 class ProfileData(BaseModel):
     name: str = Field()
     email: str = Field()
     photo_url: Optional[str] = None
-    rating: int = Field(ge=0, le=5)
+    avg_rating: int = Field(ge=0, le=5)
     comments: list[Comment] = Field()
     
 

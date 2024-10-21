@@ -49,11 +49,11 @@ async def make_user_driver(current_user: User = Depends(get_current_active_user)
     return users.make_driver(current_user, db)
 
 @router.get("/profile/driver/{driver_id}")
-async def get_driver_comments(driver_id: str, db: Session = Depends(get_db)):
+async def get_driver_profile(driver_id: str, db: Session = Depends(get_db)):
     return users.get_driver_profile(driver_id, db)
 
 @router.get("/profile/rider/{user_id}")
-async def get_rider_comments(user_id: str, db: Session = Depends(get_db)):
+async def get_rider_profile(user_id: str, db: Session = Depends(get_db)):
     return users.get_rider_profile(user_id, db)
 
 @router.post("/comment/driver/{driver_id}")
