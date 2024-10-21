@@ -58,7 +58,7 @@ async def get_rider_comments(user_id: str, db: Session = Depends(get_db)):
 
 @router.post("/comment/driver/{driver_id}")
 async def comment_driver(driver_id: str, ride_id: str, comment: str, rating: int, current_user: User = Depends(get_current_active_user),  db: Session = Depends(get_db)):
-    return users.comment_driver(driver_id, ride_id, comment, current_user, rating, db)
+    return users.comment_driver(driver_id, ride_id, comment, rating, current_user, db)
 
 @router.post("/comment/rider/{user_id}")
 async def comment_rider(user_id: str, ride_id: str, comment: str, rating: int, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):

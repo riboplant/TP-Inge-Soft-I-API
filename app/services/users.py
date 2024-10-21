@@ -230,7 +230,7 @@ def get_driver_profile(driver_id: str, db: Session):
             rating=comment.rating,
             name=db.query(Users).filter(Users.user_id == comment.user_id).first().name,
             photo_url=db.query(Users).filter(Users.user_id == comment.user_id).first().photo_url,
-            date=db.query(Rides).filter(Rides.ride_id == comment.ride_id).first().date
+            date=db.query(Rides).filter(Rides.ride_id == comment.ride_id).first().ride_date
         ) for comment in comments
     ]
 
