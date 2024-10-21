@@ -20,7 +20,7 @@ async def send_notification(user_id, title, message):
     async with httpx.AsyncClient() as client:  
         response = await client.post(url, json=payload)
     
-    if response.status_code != 201:
+    if response.status_code < 200 or response.status_code >= 300:
         raise HTTPException(status_code=response.status_code, detail=response.json())
     
     return 0

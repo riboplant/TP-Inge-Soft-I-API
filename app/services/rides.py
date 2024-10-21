@@ -11,6 +11,7 @@ from database.models import Carrys, Drivers, Prices, Rides, Users, Vehicles, Dri
 from schemas.rides_schemas import *
 from utils.locationIQAPI import get_distance_between, get_coordinates
 from utils.notifications import send_notification
+import traceback
 
 
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
@@ -436,6 +437,7 @@ async def join_ride(data: JoinRideData, user,db):
     try:
         await send_notification(driver_as_user.user_id, "Nueva solicitud!", f"{user.name} quiere unirse a tu viaje.")
     except:
+        print("Error sending notification:", traceback.format_exc())
         raise HTTPException(status_code=500, detail="Error sending notification")
 
     carry = Carrys(
