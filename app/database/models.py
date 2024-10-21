@@ -13,7 +13,6 @@ class Users(Base):
 
     user_id = Column(String, index=True)
     name = Column(String)
-    rider_rating = Column(Float(53))
     email = Column(String)
     hashed_password = Column(String)
     disabled = Column(Boolean)
@@ -52,7 +51,6 @@ class Drivers(Base):
     driver_id = Column(String)
     user_id = Column(String)
     driving_license = Column(Integer)
-    driver_rating = Column(Float(53))
     status = Column(String)
 
     #user = relationship('Users', back_populates='drivers')

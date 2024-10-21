@@ -273,3 +273,72 @@ def get_rider_profile(user_id: str, db: Session):
     )
 
     return profile_data
+
+
+def comment_driver(driver_id: str, ride_id: str, comment: str, rating: int, current_user, db):
+    driver = db.query(Drivers).filter(Drivers.driver_id == driver_id).first()
+    if not driver:
+        raise HTTPException(status_code=404, detail="Driver not found")
+    
+    if rating < 0 or rating > 5:
+        raise HTTPException(status_code=400, detail="Rating must be between 0 and 5")
+
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+
+    if not ride:
+        raise HTTPException(status_code=404, detail="Ride not found")
+
+    comment_model = RiderDriverComment(
+        comment=comment,
+        rating=rating,
+        user_id=current_user.user_id,
+        driver_id=driver_id,
+        ride_id=ride_id
+    )
+
+    try:
+        db.add(comment_model)
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error adding comment")
+
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Comment added successfully"})
+
+
+def comment_rider(user_id: str, ride_id: str, comment: str, rating: int, current_user, db):
+    user = db.query(Users).filter(Users.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if rating < 0 or rating > 5:
+        raise HTTPException(status_code=400, detail="Rating must be between 0 and 5")
+
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+
+    if not ride:
+        raise HTTPException(status_code=404, detail="Ride not found")
+
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+
+    if not driver:
+        raise HTTPException(status_code=403, detail="User is not a driver")
+    
+    if ride.driver_id != driver.driver_id:
+        raise HTTPException(status_code=403, detail="You are not the driver of this ride")
+    
+
+    comment_model = DriverRiderComment(
+        comment=comment,
+        rating=rating,
+        user_id=user_id,
+        driver_id=current_user.user_id,
+        ride_id=ride_id
+    )
+
+    try:
+        db.add(comment_model)
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error adding comment")
+
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Comment added successfully"})
