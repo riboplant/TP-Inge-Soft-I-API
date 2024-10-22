@@ -89,7 +89,8 @@ class HistoryOrUpcomingAsDriver(BaseModel):
     state: Optional[str] = None
     persons: int
     packages: int
-
+    start_time: Optional[time] = None
+    end_time: Optional[time] = None
 
 
 

@@ -187,7 +187,9 @@ def history_driver( current_user, db):
                 price= price,
                 state=state,
                 persons=persons,
-                packages=packages
+                packages=packages,
+                start_time=ride.real_start_time,
+                end_time=ride.real_end_time
             )
 
 
@@ -230,7 +232,9 @@ def upcoming_driver( current_user, db):
                 price= price,
                 state=state,
                 persons=persons,
-                packages=packages
+                packages=packages,
+                start_time=ride.real_start_time,
+                end_time=ride.real_end_time
             )
 
 
