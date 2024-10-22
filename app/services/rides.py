@@ -570,13 +570,14 @@ async def start_ride(ride_id: str, current_user, db):
             setattr(carry, 'state', 'dismissed')
             db.commit()
         except:
-            raise HTTPException(status_code=500, detail="Error updating request")
+            raise HTTPException(status_code=489, detail="Error updating request")
 
     try:
-        setattr(ride, 'real_start_time', datetime.now())
+        current_time = datetime.now().time()
+        setattr(ride, 'real_start_time', current_time)
         db.commit()
     except:
-        raise HTTPException(status_code=500, detail="Error starting ride")
+        raise HTTPException(status_code=430, detail="Error starting ride")
     db.commit()
     
     return JSONResponse(status_code=200, content={"message": "Ride started successfully"})
@@ -598,7 +599,8 @@ def finish_ride(ride_id: str, current_user, db):
         raise HTTPException(status_code=400, detail="Ride has already finished")
     
     try:
-        setattr(ride, 'real_end_time', datetime.now())
+        current_time = datetime.now().time()
+        setattr(ride, 'real_end_time', current_time)
         db.commit()
     except:
         raise HTTPException(status_code=500, detail="Error finishing ride")
