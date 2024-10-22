@@ -582,7 +582,7 @@ async def start_ride(ride_id: str, current_user, db):
     return JSONResponse(status_code=200, content={"message": "Ride started successfully"})
 
 
-async def finish_ride(ride_id: str, current_user, db):
+def finish_ride(ride_id: str, current_user, db):
     ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
     if not ride:
         raise HTTPException(status_code=400, detail="Ride not found")
