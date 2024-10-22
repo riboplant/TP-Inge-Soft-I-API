@@ -253,7 +253,7 @@ def history_rider( current_user, db):
     carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id, Carrys.state == 'accepted').all()
     
     for carry in carrys:
-            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date < datetime.now().date()).first()
+            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date <= datetime.now().date(), Rides.real_end_time != None).first()
             if ride is None:
                 continue
             
@@ -286,7 +286,7 @@ def upcoming_rider( current_user, db):
     carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id).all()
     
     for carry in carrys:
-            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date >= datetime.now().date()).first()
+            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date >= datetime.now().date(), Rides.real_end_time == None).first()
             if ride is None:
                 continue
             
