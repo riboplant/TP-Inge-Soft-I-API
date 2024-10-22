@@ -158,7 +158,7 @@ def history_driver( current_user, db):
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
         raise HTTPException(status_code=402, detail="User is not a driver")
-    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date < datetime.now().date()).all()
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date <= datetime.now().date(), Rides.real_end_time != None).all()
     
     for ride in rides:
             prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
@@ -204,7 +204,7 @@ def upcoming_driver( current_user, db):
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
         raise HTTPException(status_code=402, detail="User is not a driver")
-    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date >= datetime.now().date()).all()
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date >= datetime.now().date(), Rides.real_end_time == None).all()
     
     for ride in rides:
             prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
