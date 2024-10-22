@@ -267,7 +267,9 @@ def history_rider( current_user, db):
                 driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
                 price=_price(priceSet, carry.persons, carry.small_packages, carry.medium_packages, carry.large_Packages),
                 date=ride.ride_date,
-                state=None
+                state=None,
+                start_time=ride.real_start_time,
+                end_time=ride.real_end_time
             )
 
             rides_to_return.append(ride_to_return)
@@ -297,7 +299,9 @@ def upcoming_rider( current_user, db):
                 driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
                 price=_price(priceSet, carry.persons, carry.small_packages, carry.medium_packages, carry.large_Packages),
                 date=ride.ride_date,
-                state=carry.state
+                state=carry.state,
+                start_time=ride.real_start_time,
+                end_time=ride.real_end_time
             )
 
             rides_to_return.append(ride_to_return)

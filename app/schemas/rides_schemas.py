@@ -79,6 +79,8 @@ class rideToReturn(BaseModel):
     price: float = Field(ge=0)
     date: date
     state: Optional[str] = None
+    start_time: Optional[time] = None
+    end_time: Optional[time] = None
 
 class HistoryOrUpcomingAsDriver(BaseModel):
     ride_id: str
