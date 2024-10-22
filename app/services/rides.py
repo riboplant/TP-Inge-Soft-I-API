@@ -538,3 +538,69 @@ async def is_accepted(data, current_user, db):
         raise HTTPException(status_code=500, detail="Error updating request")
     
     return JSONResponse(status_code=200, content={"message": "Success"})
+
+
+
+async def start_ride(ride_id: str, current_user, db):
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+    if not ride:
+        raise HTTPException(status_code=400, detail="Ride not found")
+    
+    driver = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first()
+    if driver.user_id != current_user.user_id:
+        raise HTTPException(status_code=401, detail="User is not the driver of the ride")
+    
+    if ride.real_start_time is not None:
+        raise HTTPException(status_code=400, detail="Ride has already started")
+    
+    aceptedCarrys = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.state == 'accepted').all()
+
+    for carry in aceptedCarrys:
+        user = db.query(Users).filter(Users.user_id == carry.user_id).first()
+        try:
+            await send_notification(user.user_id, "Viaje iniciado!", "El viaje ha comenzado.")
+        except:
+            raise HTTPException(status_code=500, detail="Error sending notification")
+
+
+    pendingCarrys = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.state == 'pending').all()
+
+    for carry in pendingCarrys:
+        try:
+            setattr(carry, 'state', 'dismissed')
+            db.commit()
+        except:
+            raise HTTPException(status_code=500, detail="Error updating request")
+
+    try:
+        setattr(ride, 'real_start_time', datetime.now())
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error starting ride")
+    db.commit()
+    
+    return JSONResponse(status_code=200, content={"message": "Ride started successfully"})
+
+
+async def finish_ride(ride_id: str, current_user, db):
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+    if not ride:
+        raise HTTPException(status_code=400, detail="Ride not found")
+    
+    driver = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first()
+    if driver.user_id != current_user.user_id:
+        raise HTTPException(status_code=401, detail="User is not the driver of the ride")
+    
+    if ride.real_start_time is None:
+        raise HTTPException(status_code=400, detail="Ride has not started yet")
+    
+    if ride.real_end_time is not None:
+        raise HTTPException(status_code=400, detail="Ride has already finished")
+    
+    try:
+        setattr(ride, 'real_end_time', datetime.now())
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error finishing ride")
+    
+    return JSONResponse(status_code=200, content={"message": "Ride finished successfully"})
