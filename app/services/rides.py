@@ -188,8 +188,7 @@ def history_driver( current_user, db):
                 state=state,
                 persons=persons,
                 packages=packages,
-                start_time=ride.real_start_time,
-                end_time=ride.real_end_time
+                start_time=ride.start_minimum_time,
             )
 
 
@@ -233,8 +232,7 @@ def upcoming_driver( current_user, db):
                 state=state,
                 persons=persons,
                 packages=packages,
-                start_time=ride.real_start_time,
-                end_time=ride.real_end_time
+                start_time=ride.start_minimum_time,
             )
 
 
@@ -268,8 +266,7 @@ def history_rider( current_user, db):
                 price=_price(priceSet, carry.persons, carry.small_packages, carry.medium_packages, carry.large_Packages),
                 date=ride.ride_date,
                 state=None,
-                start_time=ride.real_start_time,
-                end_time=ride.real_end_time
+                start_time=ride.start_minimum_time,
             )
 
             rides_to_return.append(ride_to_return)
@@ -300,8 +297,7 @@ def upcoming_rider( current_user, db):
                 price=_price(priceSet, carry.persons, carry.small_packages, carry.medium_packages, carry.large_Packages),
                 date=ride.ride_date,
                 state=carry.state,
-                start_time=ride.real_start_time,
-                end_time=ride.real_end_time
+                start_time=ride.start_minimum_time,
             )
 
             rides_to_return.append(ride_to_return)
