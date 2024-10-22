@@ -81,6 +81,8 @@ class rideToReturn(BaseModel):
     state: Optional[str] = None
     start_time: Optional[time] = None
     end_time: Optional[time] = None
+    real_start_time: Optional[time] = None
+    real_end_time: Optional[time] = None
 
 class HistoryOrUpcomingAsDriver(BaseModel):
     ride_id: str
@@ -93,7 +95,8 @@ class HistoryOrUpcomingAsDriver(BaseModel):
     packages: int
     start_time: Optional[time] = None
     end_time: Optional[time] = None
-
+    real_start_time: Optional[time] = None
+    real_end_time: Optional[time] = None
 
 
 class RideDetailToReturn(rideToReturn):
