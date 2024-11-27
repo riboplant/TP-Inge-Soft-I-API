@@ -179,3 +179,30 @@ class DriverRiderComment(Base):
     driver_id = Column(String, nullable=False)
     rating = Column(Integer)
     comment = Column(String)
+
+class Chat(Base):
+    __tablename__ = 'chat'
+    __table_args__ = (
+        ForeignKeyConstraint(['user1_id'], ['users.user_id'], name='fk_users'),
+        ForeignKeyConstraint(['user2_id'], ['users.user_id'], name='fk_users2'),
+        PrimaryKeyConstraint('chat_id', name='chat_pkey'),
+        Index('uc_users', 'user1_id', 'user2_id', unique=True)
+    )
+
+    chat_id = Column(String, nullable=False)
+    user1_id = Column(String, nullable=False)
+    user2_id = Column(String, nullable=False)
+
+class Message(Base):
+    __tablename__ = 'message'
+    __table_args__ = (
+        ForeignKeyConstraint(['chat_id'], ['chat.chat_id'], name='fk_chat'),
+        ForeignKeyConstraint(['writer_id'], ['users.user_id'], name='fk_writer'),
+        PrimaryKeyConstraint('msg_id', name='message_pkey')
+    )
+
+    msg_id = Column(String, nullable=False)
+    writer_id = Column(String, nullable=False)
+    chat_id = Column(String, nullable=False)
+    msg = Column(String, nullable=False)
+    sent_at = Column(Date, nullable=False, server_default=text("(now() AT TIME ZONE 'America/Argentina/Buenos_Aires'::text)"))

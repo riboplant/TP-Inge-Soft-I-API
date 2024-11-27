@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import HTTPException, Depends, status
+from fastapi import HTTPException, Depends, status, WebSocket
 from sqlalchemy.orm import Session
 
 
@@ -76,3 +76,26 @@ async def get_current_active_user(current_user: UserInDB = Depends(get_current_u
         raise HTTPException(status_code=400, detail="Inactive user")
 
     return current_user
+
+
+async def get_current_user_from_ws(websocket: WebSocket, db):
+    token = websocket.headers.get("Authorization")  
+    
+    if not token:
+        raise HTTPException(status_code=400, detail="Authorization token missing")
+    
+    token = token.replace("Bearer ", "")
+    
+    try:
+        payload = jwt.decode(token, settings.key, algorithms=[settings.algorithm])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Could not validate credentials")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
+
+    user = get_user(db, email=user_id)
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    return user
