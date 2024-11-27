@@ -12,6 +12,29 @@ from schemas.rides_schemas import *
 from utils.locationIQAPI import get_distance_between, get_coordinates
 from utils.notifications import send_notification
 import traceback
+from services.users import get_cars
+
+def _get_price_set(distance:float):
+    load_dotenv()
+    
+    fuel_price = float(config('FUEL_PRICE'))
+    fuel_efficiency = float(config('FUEL_EFFICIENCY'))
+    small_package_price = float(config('SMALL_PACKAGE_PRICE'))
+    medium_package_price = float(config('MEDIUM_PACKAGE_PRICE'))
+    large_package_price = float(config('LARGE_PACKAGE_PRICE'))
+    
+    ride_price = distance * fuel_efficiency * fuel_price
+    
+    set_prices = PriceSet(
+    price_person=ride_price / 4, 
+    price_small_package=small_package_price * distance, 
+    price_medium_package=medium_package_price * distance, 
+    price_large_package=large_package_price * distance
+)
+
+    return set_prices
+
+
 
 
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
@@ -48,29 +71,6 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
     return ridesToRet
 
 
-
-
-def _get_price_set(distance:float):
-    load_dotenv()
-    
-    fuel_price = float(config('FUEL_PRICE'))
-    fuel_efficiency = float(config('FUEL_EFFICIENCY'))
-    small_package_price = float(config('SMALL_PACKAGE_PRICE'))
-    medium_package_price = float(config('MEDIUM_PACKAGE_PRICE'))
-    large_package_price = float(config('LARGE_PACKAGE_PRICE'))
-    
-    ride_price = distance * fuel_efficiency * fuel_price
-    
-    set_prices = PriceSet(
-    price_person=ride_price / 4, 
-    price_small_package=small_package_price * distance, 
-    price_medium_package=medium_package_price * distance, 
-    price_large_package=large_package_price * distance
-)
-
-    return set_prices
-
-
 def get_prices_and_cars(city_from: str, city_to: str, current_user, db):
 
     try:
@@ -80,18 +80,10 @@ def get_prices_and_cars(city_from: str, city_to: str, current_user, db):
     
     priceSet = _get_price_set(distance)
     
-    #Checking if user is driver
-    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
-    if not driver:
-        raise HTTPException(status_code=402, detail="User is not a driver")
-    
-    vehicles = db.query(Vehicles).join(Drives).filter(Drives.driver_id == driver.driver_id).all()
-    
-    vehicle_list = [{"plate": vehicle.plate, "model": vehicle.model} for vehicle in vehicles]
-    
+
     return {
         "prices": priceSet,
-        "cars": vehicle_list
+        "cars": get_cars(current_user, db)
     }
     
 
