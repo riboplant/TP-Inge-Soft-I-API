@@ -131,7 +131,6 @@ def make_driver(current_user, db):
         user_id=current_user.user_id,
         driver_id=str(uuid4()),
         driving_license=0,
-        driver_rating=0,
         status=0
     )
     db.add(driver_model)
