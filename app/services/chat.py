@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, WebSocket, WebSocketDisconnect, WebSocketException
+from fastapi import Depends, APIRouter, WebSocket, WebSocketDisconnect, WebSocketException, HTTPException
 from pytz import timezone
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -60,25 +60,18 @@ manager = ConnectionManager()
 
 
 
-async def chat(chat_id: str, websocket: WebSocket, db):
-    
-    user = await get_current_user_from_ws(websocket, db)
-
-    if not user:
-        raise WebSocketException(401, "Unauthorized")
+async def chat(chat_id: str, user: User, websocket: WebSocket, db):
     
     
     chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
-
-
     if not chat:
         raise WebSocketException(404, "Chat not found")
     
-
     if user.user_id not in [chat.user1_id, chat.user2_id]:
         raise WebSocketException(403, "Forbidden")
 
     await manager.connect(websocket)
+
     try:
         while True:
             data = await websocket.receive_text()
@@ -87,3 +80,18 @@ async def chat(chat_id: str, websocket: WebSocket, db):
             await manager.send_message(data, websocket, user, chat_id, db)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+
+def get_messages(chat_id: str, limit: int, before: str, db: Session):
+    query = db.query(Message).filter(Message.chat_id == chat_id)
+
+    if before:
+        try:
+            before_datetime = datetime.fromisoformat(before)
+            query = query.filter(Message.sent_at < before_datetime)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid 'before' timestamp format")
+
+    messages = query.order_by(Message.sent_at.desc()).limit(limit).all()
+
+    return {"messages": messages}

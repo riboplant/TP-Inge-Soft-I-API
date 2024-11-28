@@ -78,9 +78,7 @@ async def get_current_active_user(current_user: UserInDB = Depends(get_current_u
     return current_user
 
 
-async def get_current_user_from_ws(websocket: WebSocket, db):
-    token = websocket.headers.get("Authorization")  
-    
+async def get_user_by_token(token: str, db: Session = Depends(get_db)):
     if not token:
         raise HTTPException(status_code=400, detail="Authorization token missing")
     
@@ -99,3 +97,9 @@ async def get_current_user_from_ws(websocket: WebSocket, db):
         raise HTTPException(status_code=401, detail="User not found")
     
     return user
+
+
+async def get_current_user_from_ws(websocket: WebSocket, db):
+    token = websocket.headers.get("Authorization")  
+    
+    return await get_user_by_token(token, db)
