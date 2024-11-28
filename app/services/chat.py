@@ -82,12 +82,21 @@ async def chat(chat_id: str, user: User, websocket: WebSocket, db):
         manager.disconnect(websocket)
 
 
-def get_messages(chat_id: str, limit: int, before: str, db: Session):
+def get_messages(chat_id: str, limit: int, current_user, db: Session, before: str):
+
+    chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    
+    if current_user.user_id not in [chat.user1_id, chat.user2_id]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
     query = db.query(Message).filter(Message.chat_id == chat_id)
 
     if before:
         try:
-            before_datetime = datetime.fromisoformat(before)
+            before_datetime = datetime.strptime(before, "%Y-%m-%dT%H:%M:%S%z")  # Acepta la Z como zona horaria UTC
             query = query.filter(Message.sent_at < before_datetime)
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid 'before' timestamp format")
