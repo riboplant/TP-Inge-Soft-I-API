@@ -12,16 +12,17 @@ from uuid import uuid4
 
 
 
+
 class ConnectionManager:
     """Class defining socket events"""
     def __init__(self):
         """init method, keeping track of connections"""
         self.active_connections = []
     
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, websocket: WebSocket, chat_id: str):
         """connect event"""
         await websocket.accept()
-        self.active_connections.append(websocket)
+        self.active_connections.append({websocket, chat_id})
 
     async def send_message(self, message: str, websocket: WebSocket, current_user, chat_id, db: Session):
         """Direct Message"""
@@ -45,14 +46,35 @@ class ConnectionManager:
             raise WebSocketException(status_code=500, detail="Internal Server Error")
 
         await websocket.send_json({
+            "action": "new_message",
             "message": message,
             "sent_at": current_time.isoformat(),
             "writer_id": current_user.user_id
         })
+
+    async def send_message_update(self, chat_id: str, message_id: str, new_msg: str):
+        for connection, chat in self.active_connections:
+            if chat == chat_id:
+                await connection.send_json({
+                    "action": "edit_message",
+                    "message_id": message_id,
+                    "new_msg": new_msg
+                })
+                
+    async def send_message_remove(self, chat_id: str, message_id: str):
+        for connection, chat in self.active_connections:
+            if chat == chat_id:
+                await connection.send_json({
+                    "action": "remove_message",
+                    "message_id": message_id,
+                })
     
     def disconnect(self, websocket: WebSocket):
         """disconnect event"""
-        self.active_connections.remove(websocket)
+        for connection in self.active_connections:
+            if websocket in connection:
+                self.active_connections.remove(connection)
+                break
 
 
 
@@ -70,7 +92,7 @@ async def chat(chat_id: str, user: User, websocket: WebSocket, db):
     if user.user_id not in [chat.user1_id, chat.user2_id]:
         raise WebSocketException(403, "Forbidden")
 
-    await manager.connect(websocket)
+    await manager.connect(websocket, chat_id)
 
     try:
         while True:
@@ -104,3 +126,35 @@ def get_messages(chat_id: str, limit: int, current_user, db: Session, before: st
     messages = query.order_by(Message.sent_at.desc()).limit(limit).all()
 
     return {"messages": messages}
+
+def message_delete(message_id: str, db: Session, current_user):
+    message = db.query(Message).filter(Message.msg_id == message_id).first()
+
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    if message.writer_id != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    
+    manager.send_message_remove(message.chat_id, message_id)
+    
+    db.delete(message)
+    db.commit()
+
+    return {"message": "Message deleted"}
+
+def message_update(message_id: str, new_message: str, db: Session, current_user):
+    message = db.query(Message).filter(Message.msg_id == message_id).first()
+
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    if message.writer_id != current_user.user_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    
+    message.msg = new_message
+    db.commit()
+
+    manager.send_message_update(message.chat_id, message_id, new_message)
+
+    return {"message": "Message updated"}

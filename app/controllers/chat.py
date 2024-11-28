@@ -3,7 +3,7 @@ from database.connect import get_db
 from sqlalchemy.orm import Session
 from datetime import date
 
-from services.chat import chat, get_messages
+from services.chat import chat, get_messages, message_delete, message_update
 from services.auth import get_user_by_token
 from controllers.auth import get_current_active_user
 
@@ -14,10 +14,17 @@ router = APIRouter(
 
 
 @router.get("/messages/{chat_id}")
-def messages(chat_id: str, limit: int = 20, before: str = None, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
-    ans = get_messages(chat_id, limit, current_user, db, before)
-    print(ans)
-    return ans
+def messages_get(chat_id: str, limit: int = 20, before: str = None, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
+    return get_messages(chat_id, limit, current_user, db, before)
+
+@router.put("/message/{message_id}")
+def update_message(message_id: str, new_message: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
+    return message_update(message_id, new_message, db, current_user)
+
+@router.delete("/message/{message_id}")
+def delete_message(message_id: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
+    return message_delete(message_id, db, current_user)
+
 
 @router.websocket("/{chat_id}")
 async def chat_ws(websocket: WebSocket, chat_id: str, token: str, db: Session = Depends(get_db)):
