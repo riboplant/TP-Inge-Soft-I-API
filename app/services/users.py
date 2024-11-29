@@ -147,26 +147,129 @@ def edit_name(name: str, current_user, db):
 
 
 def get_driver_profile(driver_id: str, db: Session):
-    driver = get_driver_by_id(driver_id, db)
-    user = get_user_by_id(driver.user_id, db)
+    
+    driver = db.query(Drivers).filter(Drivers.driver_id == driver_id).first()
+
+    if not driver:
+        raise HTTPException(status_code=404, detail="Driver not found")
+
     comments = db.query(RiderDriverComment).filter(RiderDriverComment.driver_id == driver_id).all()
+    
 
     comment_list = [
         Comment(
             comment=comment.comment,
             rating=comment.rating,
-            name=get_user_by_id(comment.user_id, db).name,
-            photo_url=get_user_by_id(comment.user_id, db).photo_url,
+            name=db.query(Users).filter(Users.user_id == comment.user_id).first().name,
+            photo_url=db.query(Users).filter(Users.user_id == comment.user_id).first().photo_url,
             comment_date=db.query(Rides).filter(Rides.ride_id == comment.ride_id).first().ride_date
         ) for comment in comments
     ]
 
-    return ProfileData(
-        name=user.name,
-        email=user.email,
-        photo_url=user.photo_url,
-        avg_rating=int(sum(comment.rating for comment in comments) / len(comments)) if comments else 0,
+    profile_data = ProfileData(
+        name=db.query(Users).filter(Users.user_id == driver.user_id).first().name,
+        email=db.query(Users).filter(Users.user_id == driver.user_id).first().email,
+        photo_url=db.query(Users).filter(Users.user_id == driver.user_id).first().photo_url,
+        avg_rating= int(sum(comment.rating for comment in comments) / len(comments) if comments else 0),
         comments=comment_list
     )
 
+    return profile_data
 
+
+def get_rider_profile(user_id: str, db: Session):
+    user = db.query(Users).filter(Users.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    comments = db.query(DriverRiderComment).filter(DriverRiderComment.user_id == user_id).all()
+    
+    comment_list = [
+        Comment(
+            comment=comment.comment,
+            rating=comment.rating,
+            name=db.query(Users).filter(Users.user_id == (db.query(Drivers).filter(Drivers.driver_id == comment.driver_id).first().user_id)).first().name,
+            photo_url=db.query(Users).filter(Users.user_id == (db.query(Drivers).filter(Drivers.driver_id == comment.driver_id).first().user_id)).first().photo_url,
+            comment_date=db.query(Rides).filter(Rides.ride_id == comment.ride_id).first().ride_date
+        ) for comment in comments
+    ]
+
+
+    profile_data = ProfileData(
+        name=user.name,
+        email=user.email,
+        photo_url=user.photo_url,
+        avg_rating=int(sum(comment.rating for comment in comments) / len(comments) if comments else 0),
+        comments=comment_list
+    )
+
+    return profile_data
+
+
+def comment_driver(driver_id: str, ride_id: str, comment: str, rating: int, current_user, db):
+    driver = db.query(Drivers).filter(Drivers.driver_id == driver_id).first()
+    if not driver:
+        raise HTTPException(status_code=404, detail="Driver not found")
+    
+    if rating < 0 or rating > 5:
+        raise HTTPException(status_code=400, detail="Rating must be between 0 and 5")
+
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+
+    if not ride:
+        raise HTTPException(status_code=404, detail="Ride not found")
+
+    comment_model = RiderDriverComment(
+        comment=comment,
+        rating=rating,
+        user_id=current_user.user_id,
+        driver_id=driver_id,
+        ride_id=ride_id
+    )
+
+    try:
+        db.add(comment_model)
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error adding comment")
+
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Comment added successfully"})
+
+
+def comment_rider(user_id: str, ride_id: str, comment: str, rating: int, current_user, db):
+    user = db.query(Users).filter(Users.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if rating < 0 or rating > 5:
+        raise HTTPException(status_code=400, detail="Rating must be between 0 and 5")
+
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+
+    if not ride:
+        raise HTTPException(status_code=404, detail="Ride not found")
+
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+
+    if not driver:
+        raise HTTPException(status_code=403, detail="User is not a driver")
+    
+    if ride.driver_id != driver.driver_id:
+        raise HTTPException(status_code=403, detail="You are not the driver of this ride")
+    
+
+    comment_model = DriverRiderComment(
+        comment=comment,
+        rating=rating,
+        user_id=user_id,
+        driver_id=current_user.user_id,
+        ride_id=ride_id
+    )
+
+    try:
+        db.add(comment_model)
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error adding comment")
+
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Comment added successfully"})
