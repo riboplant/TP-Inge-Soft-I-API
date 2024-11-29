@@ -3,7 +3,7 @@ from database.connect import get_db
 from sqlalchemy.orm import Session
 from datetime import date
 
-from services.chat import chat, get_messages, message_delete, message_update
+from services.chat import chat, get_messages, message_delete, message_update, get_other_user
 from services.auth import get_user_by_token
 from controllers.auth import get_current_active_user
 
@@ -24,6 +24,10 @@ def update_message(message_id: str, new_message: str, db: Session = Depends(get_
 @router.delete("/message/{message_id}")
 def delete_message(message_id: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
     return message_delete(message_id, db, current_user)
+
+@router.get("/other_user/{chat_id}")
+def other_user(chat_id: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
+    return get_other_user(chat_id, current_user, db)
 
 
 @router.websocket("/{chat_id}")

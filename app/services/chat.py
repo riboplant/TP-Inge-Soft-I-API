@@ -3,13 +3,10 @@ from pytz import timezone
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from services.auth import get_current_user_from_ws
 from schemas.rides_schemas import *
-from schemas.users_schemas import User
 from database.models import *
-from database.connect import get_db
 from uuid import uuid4
-
+from schemas.users_schemas import User
 
 class ConnectionItems:
     def __init__(self, websocket: WebSocket, chat_id: str):
@@ -171,3 +168,18 @@ def message_update(message_id: str, new_message: str, db: Session, current_user)
     manager.send_message_update(message.chat_id, message_id, new_message)
 
     return {"message": "Message updated"}
+
+def get_other_user(chat_id: str, current_user, db: Session):
+    chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    
+    if current_user.user_id not in [chat.user1_id, chat.user2_id]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    
+    other_user_id = chat.user1_id if chat.user1_id != current_user.user_id else chat.user2_id
+
+    other_user = db.query(Users).filter(Users.user_id == other_user_id).first()
+
+    return {"user_id": other_user.user_id, "username": other_user.name }
