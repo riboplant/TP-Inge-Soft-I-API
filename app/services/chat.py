@@ -58,20 +58,24 @@ class ConnectionManager:
         })
 
     async def send_message_update(self, chat_id: str, message_id: str, new_msg: str):
+        """Direct Message"""
         for connection in self.active_connections:
+        
             if connection.chat_id == chat_id:
                 await connection.websocket.send_json({
                     "action": "edit_message",
-                    "message_id": message_id,
-                    "new_msg": new_msg
+                    "msg_id": message_id,
+                    "msg": new_msg
                 })
                 
     async def send_message_remove(self, chat_id: str, message_id: str):
+        """Direct Message"""
         for connection in self.active_connections:
+            
             if connection.chat_id == chat_id:
                 await connection.websocket.send_json({
                     "action": "remove_message",
-                    "message_id": message_id,
+                    "msg_id": message_id,
                 })
     
     def disconnect(self, websocket: WebSocket):
@@ -105,7 +109,6 @@ async def chat(chat_id: str, user: User, websocket: WebSocket, db):
             if data == "":
                 continue
             new_message = _add_message(data, user, chat_id, db)
-            print(manager.active_connections)
             for connection in manager.active_connections:
                 if connection.chat_id == chat_id:
                     await manager.send_message(connection.websocket, new_message)
@@ -137,7 +140,7 @@ def get_messages(chat_id: str, limit: int, current_user, db: Session, before: st
 
     return messages
 
-def message_delete(message_id: str, db: Session, current_user):
+async def message_delete(message_id: str, db: Session, current_user):
     message = db.query(Message).filter(Message.msg_id == message_id).first()
 
     if not message:
@@ -146,14 +149,18 @@ def message_delete(message_id: str, db: Session, current_user):
     if message.writer_id != current_user.user_id:
         raise HTTPException(status_code=403, detail="Forbidden")
     
-    manager.send_message_remove(message.chat_id, message_id)
+    await manager.send_message_remove(message.chat_id, message_id)
     
-    db.delete(message)
-    db.commit()
+    try:
+        db.delete(message)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
     return {"message": "Message deleted"}
 
-def message_update(message_id: str, new_message: str, db: Session, current_user):
+async def message_update(message_id: str, new_message: str, db: Session, current_user):
     message = db.query(Message).filter(Message.msg_id == message_id).first()
 
     if not message:
@@ -162,10 +169,16 @@ def message_update(message_id: str, new_message: str, db: Session, current_user)
     if message.writer_id != current_user.user_id:
         raise HTTPException(status_code=403, detail="Forbidden")
     
-    message.msg = new_message
-    db.commit()
+    try:
+        setattr(message, "msg", new_message)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    
 
-    manager.send_message_update(message.chat_id, message_id, new_message)
+
+    await manager.send_message_update(message.chat_id, message_id, new_message)
 
     return {"message": "Message updated"}
 
@@ -183,3 +196,20 @@ def get_other_user(chat_id: str, current_user, db: Session):
     other_user = db.query(Users).filter(Users.user_id == other_user_id).first()
 
     return {"user_id": other_user.user_id, "username": other_user.name }
+
+
+def create_chat(user1_id: str, user2_id: str, db: Session):
+    chat = Chat(
+        chat_id=str(uuid4()),
+        user1_id=user1_id,
+        user2_id=user2_id
+    )
+
+    try:
+        db.add(chat)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    
+    return {"chat_id": chat.chat_id}

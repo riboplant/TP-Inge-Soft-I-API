@@ -18,12 +18,12 @@ def messages_get(chat_id: str, limit: int = 20, before: str = None, db: Session 
     return get_messages(chat_id, limit, current_user, db, before)
 
 @router.put("/message/{message_id}")
-def update_message(message_id: str, new_message: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
-    return message_update(message_id, new_message, db, current_user)
+async def update_message(message_id: str, new_message: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
+    return await message_update(message_id, new_message, db, current_user)
 
 @router.delete("/message/{message_id}")
-def delete_message(message_id: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
-    return message_delete(message_id, db, current_user)
+async def delete_message(message_id: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
+    return await message_delete(message_id, db, current_user)
 
 @router.get("/other_user/{chat_id}")
 def other_user(chat_id: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
