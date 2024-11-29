@@ -206,3 +206,4 @@ class Message(Base):
     chat_id = Column(String, nullable=False)
     msg = Column(String, nullable=False)
     sent_at = Column(Date, nullable=False, server_default=text("(now() AT TIME ZONE 'America/Argentina/Buenos_Aires'::text)"))
+    edited = Column(Boolean, nullable=False, server_default=text("false"))

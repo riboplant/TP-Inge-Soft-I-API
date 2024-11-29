@@ -54,6 +54,7 @@ class ConnectionManager:
             "writer_id": new_message.writer_id,
             "chat_id": new_message.chat_id,
             "sent_at": new_message.sent_at.isoformat(),
+            "edited": new_message.edited,
             "action": "new_message"
         })
 
@@ -143,6 +144,13 @@ def get_messages(chat_id: str, limit: int, current_user, db: Session, before: st
 async def message_delete(message_id: str, db: Session, current_user):
     message = db.query(Message).filter(Message.msg_id == message_id).first()
 
+    buenos_aires_tz = timezone('America/Argentina/Buenos_Aires')
+    current_time = datetime.now(buenos_aires_tz)
+    time_difference = current_time - message.sent_at
+
+    if time_difference.total_seconds() > 600:
+        raise HTTPException(status_code=403, detail="Cannot delete messages older than 10 minutes")
+
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
@@ -163,6 +171,13 @@ async def message_delete(message_id: str, db: Session, current_user):
 async def message_update(message_id: str, new_message: str, db: Session, current_user):
     message = db.query(Message).filter(Message.msg_id == message_id).first()
 
+    buenos_aires_tz = timezone('America/Argentina/Buenos_Aires')
+    current_time = datetime.now(buenos_aires_tz)
+    time_difference = current_time - message.sent_at
+
+    if time_difference.total_seconds() > 600:
+        raise HTTPException(status_code=403, detail="Cannot update messages older than 10 minutes")
+
     if not message:
         raise HTTPException(status_code=404, detail="Message not found")
     
@@ -171,6 +186,7 @@ async def message_update(message_id: str, new_message: str, db: Session, current
     
     try:
         setattr(message, "msg", new_message)
+        setattr(message, "edited", True)
         db.commit()
     except Exception as e:
         db.rollback()
