@@ -6,8 +6,9 @@ from dotenv import load_dotenv
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
-from database.models import Carrys, Drivers, Prices, Rides, Users, Vehicles, Drives
+from database.models import *
 from schemas.rides_schemas import *
 from utils.locationIQAPI import get_distance_between, get_coordinates
 from utils.notifications import send_notification
@@ -388,6 +389,67 @@ def get_rider_detail(ride_id, current_user, db):
 
     return ride_to_return
 
+def get_driver_detail(ride_id,current_user, db):
+     
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+    car = db.query(Vehicles).filter(Vehicles.plate == ride.car_plate).first()
+    driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
+    driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
+    prices = db.query(Prices).filter(Prices.ride_id == ride_id).first()
+    
+    if driver_as_user.user_id != current_user.user_id:
+        raise HTTPException(status_code=401, detail="User is not the driver of the ride")
+
+    status = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'pending').first()     
+    state = 'pending'
+    if status is None :
+        state = None
+
+    carrys = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'accepted').all()
+
+    riders = []
+
+    for carry in carrys:
+        user = db.query(Users).filter(Users.user_id == carry.user_id).first()
+        chat = db.query(Chat).filter(
+            or_(
+                (Chat.user1_id == driver_as_user.user_id) & (Chat.user2_id == user.user_id),
+                (Chat.user2_id == driver_as_user.user_id) & (Chat.user1_id == user.user_id)
+            )
+            ).first()
+        riders.append(UserForListOfRiders(
+            user_id=user.user_id,
+            name=user.name,
+            photo_url=user.photo_url if user.photo_url is not None else '',
+            chat_id=chat.chat_id if chat is not None else ''
+        ))
+    
+    ride_to_return = RideDetailUpcomingDriver(
+                ride_id=ride.ride_id,
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                driver_name=driver_as_user.name,
+                driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
+                price=0,
+                date=ride.ride_date,
+                state=state,
+                available_space_persons=ride.available_space_people,
+                available_space_small_package=ride.available_space_small_package,
+                available_space_medium_package=ride.available_space_medium_package,
+                available_space_large_package=ride.available_space_large_package,
+                car_model=car.model,
+                car_plate=car.plate,
+                driver_id=ride.driver_id,
+                price_person=prices.price_person,
+                price_small_package=prices.price_small_package,
+                price_medium_package=prices.price_medium_package,
+                price_large_package=prices.price_large_package,
+                start_maximum_time=ride.start_maximum_time,
+                start_minimum_time=ride.start_minimum_time,
+                riders=riders
+            )
+
+    return ride_to_return
 
 def get_driver_history_detail(ride_id, current_user, db):
      

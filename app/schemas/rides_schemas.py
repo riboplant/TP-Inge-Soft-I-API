@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import date, time
-
+from schemas.users_schemas import UserForListOfRiders
 
 class Ride(BaseModel):
     ride_id: str
@@ -114,6 +114,9 @@ class RideDetailToReturn(rideToReturn):
     price_large_package: float
     start_maximum_time: time
     start_minimum_time: time
+
+class RideDetailUpcomingDriver(RideDetailToReturn):
+    riders: list[UserForListOfRiders] = Field()
 
 class RideDetailUpcomingRider(rideToReturn):
     space_persons: int = Field(ge=0)

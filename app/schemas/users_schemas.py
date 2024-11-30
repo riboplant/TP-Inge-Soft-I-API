@@ -91,6 +91,11 @@ class ProfileData(BaseModel):
     comments: list[Comment] = Field()
     
 
+class UserForListOfRiders(BaseModel):
+    user_id: str
+    name: str
+    photo_url: str
+    chat_id: str
 
 
 
