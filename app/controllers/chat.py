@@ -3,7 +3,7 @@ from database.connect import get_db
 from sqlalchemy.orm import Session
 from datetime import date
 
-from services.chat import chat, get_messages, message_delete, message_update, get_other_user
+from services.chat import *
 from services.auth import get_user_by_token
 from controllers.auth import get_current_active_user
 
@@ -29,6 +29,9 @@ async def delete_message(message_id: str, db: Session = Depends(get_db), current
 def other_user(chat_id: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
     return get_other_user(chat_id, current_user, db)
 
+@router.post("/create")
+async def chat_create(user_id: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
+    return await create_chat(user_id, current_user.user_id, db)
 
 @router.websocket("/{chat_id}")
 async def chat_ws(websocket: WebSocket, chat_id: str, token: str, db: Session = Depends(get_db)):

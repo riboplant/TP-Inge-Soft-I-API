@@ -1,6 +1,7 @@
 from fastapi import Depends, APIRouter, WebSocket, WebSocketDisconnect, WebSocketException, HTTPException
 from pytz import timezone
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from datetime import datetime
 
 from schemas.rides_schemas import *
@@ -215,6 +216,17 @@ def get_other_user(chat_id: str, current_user, db: Session):
 
 
 def create_chat(user1_id: str, user2_id: str, db: Session):
+
+    chat = db.query(Chat).filter(
+            or_(
+                (Chat.user1_id == user1_id) & (Chat.user2_id == user2_id),
+                (Chat.user2_id == user1_id) & (Chat.user1_id == user2_id)
+            )
+            ).first()
+
+    if chat:
+        raise HTTPException(status_code=400, detail="Chat already exists")
+
     chat = Chat(
         chat_id=str(uuid4()),
         user1_id=user1_id,
