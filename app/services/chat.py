@@ -263,7 +263,8 @@ def get_chats(current_user, db: Session):
             "chat_id": chat.chat_id,
             "name_other_user": other_user["username"],
             "photo_url_other_user": other_user["photo_url"],
-            "last_msg": last_message.msg if last_message else None
+            "last_msg": last_message.msg if last_message else None,
+            "last_msg_time": last_message.sent_at.isoformat() if last_message else None
         })
     return result
 
