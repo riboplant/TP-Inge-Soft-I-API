@@ -10,7 +10,7 @@ class User(BaseModel):
     disabled: bool = Field()
     address: Optional[str] = Field(min_length=5)
     dni: Optional[int] = Field(ge=0)
-    status: Optional[str] = Field()
+    verified: Optional[bool] = Field()
     photo_url: Optional[str]
     delete_photo_url: Optional[str]
 
@@ -22,6 +22,7 @@ class UserData(BaseModel):
     photo_url: Optional[str]
     is_driver: Optional[bool]
     user_id: str
+    verified: Optional[bool]
 
 class PhotoURLS(BaseModel):
     photo_url: str

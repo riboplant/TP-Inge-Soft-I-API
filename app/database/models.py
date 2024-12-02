@@ -18,7 +18,7 @@ class Users(Base):
     disabled = Column(Boolean)
     address = Column(String)
     dni = Column(Integer)
-    status = Column(String)
+    verified = Column(Boolean)
     photo_url = Column(String)
     delete_photo_url = Column(String)
 

@@ -56,7 +56,8 @@ def get_user_data(current_user, db):
         dni=user_model.dni,
         photo_url=user_model.photo_url,
         is_driver=bool(driver),
-        user_id=user_model.user_id
+        user_id=user_model.user_id,
+        verified=user_model.verified
     )
 
 

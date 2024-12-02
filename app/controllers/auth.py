@@ -48,7 +48,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         user_model.disabled = False
         user_model.address = user.address
         user_model.dni = int(user.dni)
-        user_model.status = "active"
+        user_model.verified = False
         user_model.photo_url = user.photo_url
 
         db.add(user_model)

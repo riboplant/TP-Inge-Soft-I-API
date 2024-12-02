@@ -15,10 +15,10 @@ def generate_uuid():
 users = [
     Users(user_id=generate_uuid(), name="Alice Johnson", rider_rating=4.9, email="alice.johnson@example.com",
           hashed_password="hashedpassword3", disabled=False, address="789 Pine Street", dni=23456789,
-          status="active", photo_id=3),
+          verified=False, photo_id=3),
     Users(user_id=generate_uuid(), name="Bob Brown", rider_rating=4.4, email="bob.brown@example.com",
           hashed_password="hashedpassword4", disabled=False, address="321 Maple Road", dni=98765432,
-          status="active", photo_id=4)
+          verified=True, photo_id=4)
 ]
 
 # Crear nuevos vehículos
