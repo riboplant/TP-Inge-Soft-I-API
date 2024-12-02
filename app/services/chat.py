@@ -252,6 +252,9 @@ def get_chats(current_user, db: Session):
         last_message = db.query(Message).filter(Message.chat_id == chat.chat_id).order_by(Message.sent_at.desc()).first()
         chats_with_last_message.append((chat, last_message.sent_at if last_message else None))
 
+    if chats_with_last_message == []:
+        return []
+    
     chats_with_last_message.sort(key=lambda x: x[1] if x[1] else datetime.min, reverse=True)
 
     sorted_chats = [chat for chat, _ in chats_with_last_message]
