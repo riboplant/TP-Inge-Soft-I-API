@@ -212,7 +212,7 @@ def get_other_user(chat_id: str, current_user, db: Session):
 
     other_user = db.query(Users).filter(Users.user_id == other_user_id).first()
 
-    return {"user_id": other_user.user_id, "username": other_user.name }
+    return {"user_id": other_user.user_id, "username": other_user.name, "photo_url": other_user.photo_url}
 
 
 def create_chat(user1_id: str, user2_id: str, db: Session):
@@ -241,3 +241,29 @@ def create_chat(user1_id: str, user2_id: str, db: Session):
         raise HTTPException(status_code=500, detail="Internal Server Error")
     
     return {"chat_id": chat.chat_id}
+
+def get_chats(current_user, db: Session):
+    
+    chats = db.query(Chat).filter(or_(Chat.user1_id == current_user.user_id, Chat.user2_id == current_user.user_id)).all()
+
+    chats_with_last_message = []
+
+    for chat in chats:
+        last_message = db.query(Message).filter(Message.chat_id == chat.chat_id).order_by(Message.sent_at.desc()).first()
+        chats_with_last_message.append((chat, last_message.sent_at if last_message else None))
+
+    chats_with_last_message.sort(key=lambda x: x[1] if x[1] else datetime.min, reverse=True)
+
+    sorted_chats = [chat for chat, _ in chats_with_last_message]
+    result = []
+    for chat in sorted_chats:
+        other_user = get_other_user(chat.chat_id, current_user, db)
+        last_message = db.query(Message).filter(Message.chat_id == chat.chat_id).order_by(Message.sent_at.desc()).first()
+        result.append({
+            "chat_id": chat.chat_id,
+            "name_other_user": other_user["username"],
+            "photo_url_other_user": other_user["photo_url"],
+            "last_msg": last_message.msg if last_message else None
+        })
+    return result
+

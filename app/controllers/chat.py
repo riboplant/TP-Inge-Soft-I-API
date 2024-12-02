@@ -33,6 +33,10 @@ def other_user(chat_id: str, db: Session = Depends(get_db), current_user = Depen
 async def chat_create(user_id: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
     return await create_chat(user_id, current_user.user_id, db)
 
+@router.get("/list")
+async def chat_list(db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
+    return get_chats(current_user, db)
+
 @router.websocket("/{chat_id}")
 async def chat_ws(websocket: WebSocket, chat_id: str, token: str, db: Session = Depends(get_db)):
     if not token:
