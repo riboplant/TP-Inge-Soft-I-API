@@ -243,19 +243,19 @@ def create_chat(user1_id: str, user2_id: str, db: Session):
     return {"chat_id": chat.chat_id}
 
 def get_chats(current_user, db: Session):
-    
     chats = db.query(Chat).filter(or_(Chat.user1_id == current_user.user_id, Chat.user2_id == current_user.user_id)).all()
 
     chats_with_last_message = []
-
+    buenos_aires_tz = timezone("America/Argentina/Buenos_Aires")
+    
     for chat in chats:
         last_message = db.query(Message).filter(Message.chat_id == chat.chat_id).order_by(Message.sent_at.desc()).first()
-        chats_with_last_message.append((chat, last_message.sent_at if last_message else None))
+        chats_with_last_message.append((chat, last_message.sent_at if last_message else datetime.min.replace(tzinfo=buenos_aires_tz)))
 
     if chats_with_last_message == []:
         return []
     
-    chats_with_last_message.sort(key=lambda x: x[1] if x[1] else datetime.min, reverse=True)
+    chats_with_last_message.sort(key=lambda x: x[1], reverse=True)
 
     sorted_chats = [chat for chat, _ in chats_with_last_message]
     result = []
@@ -270,4 +270,3 @@ def get_chats(current_user, db: Session):
             "last_msg_time": last_message.sent_at.isoformat() if last_message else None
         })
     return result
-
