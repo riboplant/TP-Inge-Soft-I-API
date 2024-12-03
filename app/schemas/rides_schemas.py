@@ -83,6 +83,7 @@ class rideToReturn(BaseModel):
     end_time: Optional[time] = None
     real_start_time: Optional[time] = None
     real_end_time: Optional[time] = None
+    paid: Optional[bool] = None
 
 class HistoryOrUpcomingAsDriver(BaseModel):
     ride_id: str

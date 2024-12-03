@@ -298,7 +298,8 @@ def upcoming_rider( current_user, db):
                 state=carry.state,
                 start_time=ride.start_minimum_time,
                 real_end_time=ride.real_end_time,
-                real_start_time=ride.real_start_time
+                real_start_time=ride.real_start_time,
+                paid=carry.payment_id is not None
             )
 
             rides_to_return.append(ride_to_return)
@@ -384,7 +385,8 @@ def get_rider_detail(ride_id, current_user, db):
                 car_plate=car.plate,
                 driver_id=ride.driver_id,
                 start_maximum_time=ride.start_maximum_time,
-                start_minimum_time=ride.start_minimum_time
+                start_minimum_time=ride.start_minimum_time,
+                paid=carry.payment_id is not None
             )
 
     return ride_to_return
