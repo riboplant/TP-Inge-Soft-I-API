@@ -1,0 +1,44 @@
+INFO:     Started server process [4976]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+DEBUG:multipart.multipart:Calling on_field_start with no data
+DEBUG:multipart.multipart:Calling on_field_name with data[0:8]
+DEBUG:multipart.multipart:Calling on_field_data with data[9:36]
+DEBUG:multipart.multipart:Calling on_field_end with no data
+DEBUG:multipart.multipart:Calling on_field_start with no data
+DEBUG:multipart.multipart:Calling on_field_name with data[37:45]
+DEBUG:multipart.multipart:Calling on_field_data with data[46:55]
+DEBUG:multipart.multipart:Calling on_field_end with no data
+DEBUG:multipart.multipart:Calling on_end with no data
+DEBUG:passlib.handlers.bcrypt:trapped unexpected response from 'os_crypt' backend: verify('test', b'$2$04$5BJqKfqMQvV7nS.yUguNcuRfMMOXK0xPWavM7pOzjEi5ze5T1k8/S'):
+Traceback (most recent call last):
+  File "/home/santiago/TP-Inge-Soft-I-API/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 303, in safe_verify
+    return verify(secret, hash)
+  File "/home/santiago/TP-Inge-Soft-I-API/.venv/lib/python3.10/site-packages/passlib/utils/handlers.py", line 792, in verify
+    return consteq(self._calc_checksum(secret), chk)
+  File "/home/santiago/TP-Inge-Soft-I-API/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 837, in _calc_checksum
+    raise uh.exc.InternalBackendError(
+passlib.exc.InternalBackendError: crypt.crypt() failed for unknown reason; passlib recommends running `pip install bcrypt` for general bcrypt support.(config=<hash <class 'str'> value omitted>, secret=<hash <class 'bytes'> value omitted>)
+DEBUG:passlib.handlers.bcrypt:'os_crypt' backend lacks $2$ support, enabling workaround
+INFO:     45.167.220.33:43310 - "POST /auth/token HTTP/1.1" 200 OK
+INFO:     45.167.220.33:43310 - "GET /users/me HTTP/1.1" 200 OK
+INFO:     45.167.220.33:43310 - "GET /rides/upcoming/driver HTTP/1.1" 200 OK
+INFO:     45.167.220.33:43318 - "GET /chat/list HTTP/1.1" 200 OK
+INFO:     45.167.220.33:43326 - "GET /rides/upcoming/driver HTTP/1.1" 200 OK
+DEBUG:multipart.multipart:Calling on_field_start with no data
+DEBUG:multipart.multipart:Calling on_field_name with data[0:8]
+DEBUG:multipart.multipart:Calling on_field_data with data[9:36]
+DEBUG:multipart.multipart:Calling on_field_end with no data
+DEBUG:multipart.multipart:Calling on_field_start with no data
+DEBUG:multipart.multipart:Calling on_field_name with data[37:45]
+DEBUG:multipart.multipart:Calling on_field_data with data[46:55]
+DEBUG:multipart.multipart:Calling on_field_end with no data
+DEBUG:multipart.multipart:Calling on_end with no data
+INFO:     45.167.220.33:43908 - "POST /auth/token HTTP/1.1" 200 OK
+INFO:     45.167.220.33:43908 - "GET /users/me HTTP/1.1" 200 OK
+INFO:     45.167.220.33:43908 - "GET /rides/upcoming/driver HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [4976]
