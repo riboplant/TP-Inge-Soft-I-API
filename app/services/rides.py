@@ -470,6 +470,23 @@ def get_driver_history_detail(ride_id, current_user, db):
         small_packages += carry.small_packages
         medium_packages += carry.medium_packages
         large_packages += carry.large_Packages
+    
+    riders = []
+
+    for carry in carrys:
+        user = db.query(Users).filter(Users.user_id == carry.user_id).first()
+        chat = db.query(Chat).filter(
+            or_(
+                (Chat.user1_id == current_user.user_id) & (Chat.user2_id == user.user_id),
+                (Chat.user2_id == current_user.user_id) & (Chat.user1_id == user.user_id)
+            )
+            ).first()
+        riders.append(UserForListOfRiders(
+            user_id=user.user_id,
+            name=user.name,
+            photo_url=user.photo_url if user.photo_url is not None else '',
+            chat_id=chat.chat_id if chat is not None else ''
+        ))
 
     ride_to_return = RideDetailHistoryDriver(
                 city_from=ride.city_from,
@@ -483,7 +500,8 @@ def get_driver_history_detail(ride_id, current_user, db):
                 medium_package=medium_packages,
                 large_package=large_packages,
                 car_model=car.model,
-                car_plate=car.plate          
+                car_plate=car.plate,
+                riders=riders  
             )
 
     return ride_to_return
