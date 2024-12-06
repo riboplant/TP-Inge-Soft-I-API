@@ -263,14 +263,15 @@ def comment_rider(user_id: str, ride_id: str, comment: str, rating: int, current
         comment=comment,
         rating=rating,
         user_id=user_id,
-        driver_id=current_user.user_id,
+        driver_id=driver.driver_id,
         ride_id=ride_id
     )
 
     try:
         db.add(comment_model)
         db.commit()
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail="Error adding comment")
-
+    
     return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Comment added successfully"})
