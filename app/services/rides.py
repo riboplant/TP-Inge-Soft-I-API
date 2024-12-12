@@ -324,7 +324,8 @@ def today_rider_driver( current_user, db):
                 packages=carry.small_packages + carry.medium_packages + carry.large_Packages,
                 people=carry.persons,
                 type='rider',
-                start_time=ride.start_minimum_time)
+                start_time=ride.start_minimum_time,
+                real_start_time=ride.real_start_time)
 
             rides_to_return.append(ride_to_return)
     
@@ -347,7 +348,8 @@ def today_rider_driver( current_user, db):
                 packages=packages,
                 people=persons,
                 type='driver',
-                start_time=ride.start_minimum_time)
+                start_time=ride.start_minimum_time,
+                real_start_time=ride.real_start_time)
 
             rides_to_return.append(ride_to_return)
 
@@ -619,6 +621,13 @@ async def leave_ride(ride_id, current_user, db):
     if carry.payment_id is not None:
         raise HTTPException(status_code=400, detail="Cannot cancel ride after payment has been made")
 
+    driver_as_user = db.query(Users).filter(Users.user_id == db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id).first()
+
+    try:
+        await send_notification(driver_as_user.user_id, "Solicitud cancelada!", f"{current_user.name} canceló su solicitud.")
+    except:
+        raise HTTPException(status_code=500, detail="Error sending notification")
+    
     try:
         db.delete(carry)
         db.commit()
@@ -733,15 +742,15 @@ async def start_ride(ride_id: str, current_user, db):
         except:
             raise HTTPException(status_code=489, detail="Error updating request")
 
+    current_time = datetime.now().time()
     try:
-        current_time = datetime.now().time()
         setattr(ride, 'real_start_time', current_time)
         db.commit()
     except:
         raise HTTPException(status_code=430, detail="Error starting ride")
     db.commit()
     
-    return JSONResponse(status_code=200, content={"message": "Ride started successfully"})
+    return {"real_start_time": current_time}
 
 
 def finish_ride(ride_id: str, current_user, db):
