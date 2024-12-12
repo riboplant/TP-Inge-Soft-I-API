@@ -215,7 +215,9 @@ def get_other_user(chat_id: str, current_user, db: Session):
     return {"user_id": other_user.user_id, "username": other_user.name, "photo_url": other_user.photo_url}
 
 
-def create_chat(user1_id: str, user2_id: str, db: Session):
+def create_chat(driver_id: str, user2_id: str, db: Session):
+
+    user1_id = db.query(Drivers).filter(Drivers.driver_id == driver_id).first().user_id
 
     chat = db.query(Chat).filter(
             or_(
