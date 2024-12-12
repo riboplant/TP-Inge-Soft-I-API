@@ -307,6 +307,54 @@ def upcoming_rider( current_user, db):
     return rides_to_return
 
 
+def today_rider_driver( current_user, db):
+    rides_to_return = []
+   
+    carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id).all()
+    
+    for carry in carrys:
+            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date == datetime.now().date(), Rides.real_end_time == None).first()
+            if ride is None:
+                continue
+            
+            ride_to_return = TodayRides(
+                ride_id=ride.ride_id,
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                packages=carry.small_packages + carry.medium_packages + carry.large_Packages,
+                people=carry.persons,
+                type='rider',
+                start_time=ride.start_minimum_time)
+
+            rides_to_return.append(ride_to_return)
+    
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date == datetime.now().date(), Rides.real_end_time == None).all()
+
+    for ride in rides:
+            carrys = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'accepted').all()
+            persons=0
+            packages=0
+            for carry in carrys:
+                persons += carry.persons
+                packages += carry.small_packages + carry.medium_packages + carry.large_Packages
+            
+            ride_to_return = TodayRides(
+                ride_id=ride.ride_id,
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                packages=packages,
+                people=persons,
+                type='driver',
+                start_time=ride.start_minimum_time)
+
+            rides_to_return.append(ride_to_return)
+
+    return rides_to_return
+    
+
+
 def _price(priceSet: PriceSet, people: int, small_packages: int, medium_packages: int, large_packages: int):
     return priceSet.price_person * people + priceSet.price_large_package * large_packages + priceSet.price_medium_package * medium_packages + priceSet.price_small_package * small_packages
 
@@ -448,6 +496,8 @@ def get_driver_detail(ride_id,current_user, db):
                 price_large_package=prices.price_large_package,
                 start_maximum_time=ride.start_maximum_time,
                 start_minimum_time=ride.start_minimum_time,
+                real_start_time=ride.real_start_time,
+                real_end_time=ride.real_end_time,
                 riders=riders
             )
 
@@ -556,6 +606,35 @@ async def join_ride(data: JoinRideData, user,db):
 
     return JSONResponse(status_code=200, content={"message": "Success"})
 
+async def leave_ride(ride_id, current_user, db):
+    carry = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.user_id == current_user.user_id).first()
+    if not carry:
+        raise HTTPException(status_code=400, detail="Request not found")
+    
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+
+    if (ride.ride_date - datetime.now().date()).days < 1:
+        raise HTTPException(status_code=400, detail="Cannot cancel ride within 24 hours of start time")
+    
+    if carry.payment_id is not None:
+        raise HTTPException(status_code=400, detail="Cannot cancel ride after payment has been made")
+
+    try:
+        db.delete(carry)
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error leaving ride")
+    
+    try:
+        setattr(ride, 'available_space_people', ride.available_space_people + carry.persons)
+        setattr(ride, 'available_space_small_package', ride.available_space_small_package + carry.small_packages)
+        setattr(ride, 'available_space_medium_package', ride.available_space_medium_package + carry.medium_packages)
+        setattr(ride, 'available_space_large_package', ride.available_space_large_package + carry.large_Packages)
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error updating ride")
+    
+    return JSONResponse(status_code=200, content={"message": "Success"})
 
 def get_requests_pendings(ride_id,current_user, db):
 
