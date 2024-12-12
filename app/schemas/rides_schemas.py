@@ -182,3 +182,4 @@ class TodayRides(BaseModel):
     people: int
     type: str # puede ser Conductor o pasajero
     start_time: time
+    real_start_time: Optional[time] = None
