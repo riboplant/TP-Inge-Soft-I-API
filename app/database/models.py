@@ -20,7 +20,6 @@ class Users(Base):
     dni = Column(Integer)
     verified = Column(Boolean)
     photo_url = Column(String)
-    delete_photo_url = Column(String)
 
     #drivers = relationship('Drivers', back_populates='user')
     #carrys = relationship('Carrys', back_populates='user')

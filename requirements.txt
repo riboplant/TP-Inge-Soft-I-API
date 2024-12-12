@@ -42,6 +42,11 @@ mercadopago==2.2.3
     # via -r requirements.in
 passlib==1.7.4
     # via -r requirements.in
+<<<<<<< HEAD
+=======
+psycopg2-binary==2.9.9
+    # via -r requirements.in
+>>>>>>> 0e0518b982485605e81e1c034a6e12ac52811218
 pyasn1==0.6.1
     # via
     #   python-jose

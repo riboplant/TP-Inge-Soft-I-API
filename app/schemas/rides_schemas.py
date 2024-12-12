@@ -143,6 +143,7 @@ class RideDetailHistoryDriver(BaseModel):
     price: float
     car_model: str 
     car_plate: str 
+    riders: list[UserForListOfRiders] = Field()
 
 
 class JoinRideData(BaseModel):

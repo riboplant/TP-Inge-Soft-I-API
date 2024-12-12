@@ -41,7 +41,6 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         
         user_model.user_id = str(uuid4())
         user_model.name = user.name
-        user_model.rider_rating = 0
         user_model.email = user.email
         hashed_password = get_password_hash(user.password)
         user_model.hashed_password = hashed_password
