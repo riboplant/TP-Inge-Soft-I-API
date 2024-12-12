@@ -67,6 +67,10 @@ async def get_driver_history_detail(ride_id: str,current_user: User = Depends(ge
 async def join_ride(data: JoinRideData, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return await rides.join_ride(data, current_user, db)
 
+@router.delete("/leave/{ride_id}")
+async def leave_ride(ride_id: str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return await rides.leave_ride(ride_id, current_user, db)
+
 @router.get("/requests/pendings/{ride_id}")
 async def get_requests_pendings(ride_id: str, current_user: User = Depends(get_current_active_user) ,db: Session = Depends(get_db)):
     return rides.get_requests_pendings(ride_id, current_user, db)

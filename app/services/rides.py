@@ -556,6 +556,35 @@ async def join_ride(data: JoinRideData, user,db):
 
     return JSONResponse(status_code=200, content={"message": "Success"})
 
+async def leave_ride(ride_id, current_user, db):
+    carry = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.user_id == current_user.user_id).first()
+    if not carry:
+        raise HTTPException(status_code=400, detail="Request not found")
+    
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+
+    if (ride.ride_date - datetime.now().date()).days < 1:
+        raise HTTPException(status_code=400, detail="Cannot cancel ride within 24 hours of start time")
+    
+    if carry.payment_id is not None:
+        raise HTTPException(status_code=400, detail="Cannot cancel ride after payment has been made")
+
+    try:
+        db.delete(carry)
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error leaving ride")
+    
+    try:
+        setattr(ride, 'available_space_people', ride.available_space_people + carry.persons)
+        setattr(ride, 'available_space_small_package', ride.available_space_small_package + carry.small_packages)
+        setattr(ride, 'available_space_medium_package', ride.available_space_medium_package + carry.medium_packages)
+        setattr(ride, 'available_space_large_package', ride.available_space_large_package + carry.large_Packages)
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error updating ride")
+    
+    return JSONResponse(status_code=200, content={"message": "Success"})
 
 def get_requests_pendings(ride_id,current_user, db):
 
