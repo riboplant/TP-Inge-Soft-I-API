@@ -307,6 +307,54 @@ def upcoming_rider( current_user, db):
     return rides_to_return
 
 
+def today_rider_driver( current_user, db):
+    rides_to_return = []
+   
+    carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id).all()
+    
+    for carry in carrys:
+            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date == datetime.now().date(), Rides.real_end_time == None).first()
+            if ride is None:
+                continue
+            
+            ride_to_return = TodayRides(
+                ride_id=ride.ride_id,
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                packages=carry.small_packages + carry.medium_packages + carry.large_Packages,
+                people=carry.persons,
+                type='rider',
+                start_time=ride.start_minimum_time)
+
+            rides_to_return.append(ride_to_return)
+    
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date == datetime.now().date(), Rides.real_end_time == None).all()
+
+    for ride in rides:
+            carrys = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'accepted').all()
+            persons=0
+            packages=0
+            for carry in carrys:
+                persons += carry.persons
+                packages += carry.small_packages + carry.medium_packages + carry.large_Packages
+            
+            ride_to_return = TodayRides(
+                ride_id=ride.ride_id,
+                city_from=ride.city_from,
+                city_to=ride.city_to,
+                packages=packages,
+                people=persons,
+                type='driver',
+                start_time=ride.start_minimum_time)
+
+            rides_to_return.append(ride_to_return)
+
+    return rides_to_return
+    
+
+
 def _price(priceSet: PriceSet, people: int, small_packages: int, medium_packages: int, large_packages: int):
     return priceSet.price_person * people + priceSet.price_large_package * large_packages + priceSet.price_medium_package * medium_packages + priceSet.price_small_package * small_packages
 
@@ -448,6 +496,8 @@ def get_driver_detail(ride_id,current_user, db):
                 price_large_package=prices.price_large_package,
                 start_maximum_time=ride.start_maximum_time,
                 start_minimum_time=ride.start_minimum_time,
+                real_start_time=ride.real_start_time,
+                real_end_time=ride.real_end_time,
                 riders=riders
             )
 

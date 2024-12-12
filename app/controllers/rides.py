@@ -45,6 +45,10 @@ async def history_rider( current_user: User = Depends(get_current_active_user), 
 async def my_rides_upcoming( current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
      return rides.upcoming_rider(current_user, db)
 
+@router.get("/today/rider_driver")
+async def today_rider_driver( current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+     return rides.today_rider_driver(current_user, db)
+
 @router.get("/search/detail/{ride_id}")
 async def get_ride_search_detail(ride_id: str, db: Session = Depends(get_db)):
     return rides.get_ride_search_detail(ride_id, db)

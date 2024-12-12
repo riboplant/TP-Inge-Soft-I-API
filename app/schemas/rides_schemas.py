@@ -173,3 +173,12 @@ class PaymentData(BaseModel):
     amount: float = Field(ge=0)
     currency: str
     status: str
+
+class TodayRides(BaseModel):
+    ride_id: str
+    city_from: str
+    city_to: str
+    packages: int
+    people: int
+    type: str # puede ser Conductor o pasajero
+    start_time: time
