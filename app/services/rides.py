@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from uuid import uuid4
+import pytz
 
 from decouple import config
 from dotenv import load_dotenv
@@ -421,7 +422,7 @@ def get_rider_detail(ride_id, current_user, db):
     prices = db.query(Prices).filter(Prices.ride_id == ride_id).first()
 
     carry = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.user_id == current_user.user_id).first()
-
+    naive_now = datetime.now(pytz.UTC)
     ride_to_return = RideDetailUpcomingRider(
                 ride_id=ride.ride_id,
                 city_from=ride.city_from,
@@ -430,7 +431,10 @@ def get_rider_detail(ride_id, current_user, db):
                 driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
                 price=_price(prices, carry.persons, carry.small_packages, carry.medium_packages, carry.large_Packages),
                 date=ride.ride_date,
-                state= carry.state if ride.ride_date > datetime.now().date() else None,
+                state = carry.state if (
+                    ride.ride_date > naive_now.date() or 
+                    (ride.ride_date == naive_now.date() and ride.start_maximum_time.replace(tzinfo=None) > naive_now.time())
+                ) else None,
                 space_persons=carry.persons,
                 space_small_package=carry.small_packages,
                 space_medium_package=carry.medium_packages,
