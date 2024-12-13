@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from uuid import uuid4
+from pytz import timezone
 
 from decouple import config
 from dotenv import load_dotenv
@@ -422,6 +423,10 @@ def get_rider_detail(ride_id, current_user, db):
 
     carry = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.user_id == current_user.user_id).first()
 
+    buenos_aires_tz = timezone('America/Argentina/Buenos_Aires')
+    current_time = datetime.now(buenos_aires_tz)
+
+
     ride_to_return = RideDetailUpcomingRider(
                 ride_id=ride.ride_id,
                 city_from=ride.city_from,
@@ -430,7 +435,11 @@ def get_rider_detail(ride_id, current_user, db):
                 driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
                 price=_price(prices, carry.persons, carry.small_packages, carry.medium_packages, carry.large_Packages),
                 date=ride.ride_date,
-                state= carry.state if (ride.ride_date > datetime.now().date()) or (ride.ride_date == datetime.now().date() and ride.start_maximum_time > datetime.now().time()) else None,
+                state = carry.state if (
+                    ride.ride_date > current_time.date()
+                ) or (
+                    ride.ride_date == current_time.date() and ride.start_maximum_time > current_time.time()
+                ) else None,
                 space_persons=carry.persons,
                 space_small_package=carry.small_packages,
                 space_medium_package=carry.medium_packages,
@@ -441,7 +450,7 @@ def get_rider_detail(ride_id, current_user, db):
                 start_maximum_time=ride.start_maximum_time,
                 start_minimum_time=ride.start_minimum_time,
                 paid=carry.payment_id is not None
-            )
+    )
 
     return ride_to_return
 
