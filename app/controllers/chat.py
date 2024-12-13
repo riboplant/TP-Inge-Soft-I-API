@@ -31,7 +31,7 @@ def other_user(chat_id: str, db: Session = Depends(get_db), current_user = Depen
 
 @router.post("/create")
 async def chat_create(driver_id: str, db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
-    return await create_chat(driver_id, current_user.user_id, db)
+    return create_chat(driver_id, current_user.user_id, db)
 
 @router.get("/list")
 async def chat_list(db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
