@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 
 from database.models import *
 from schemas.rides_schemas import *
@@ -48,7 +48,11 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         Rides.available_space_large_package >= large_packages,
         Rides.available_space_medium_package >= medium_packages,
         Rides.available_space_small_package >= small_packages,
-        Rides.available_space_people >= people
+        Rides.available_space_people >= people,
+        or_(
+            and_(Rides.start_maximum_time > datetime.now().time(), Rides.ride_date == datetime.now().date()),
+            Rides.ride_date > datetime.now().date()  
+        )
     ).all() 
 
     for ride in rides:
@@ -310,7 +314,7 @@ def upcoming_rider( current_user, db):
 def today_rider_driver( current_user, db):
     rides_to_return = []
    
-    carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id).all()
+    carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id, Carrys.state == 'accepted').all()
     
     for carry in carrys:
             ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date == datetime.now().date(), Rides.real_end_time == None).first()
@@ -426,7 +430,7 @@ def get_rider_detail(ride_id, current_user, db):
                 driver_photo=driver_as_user.photo_url if driver_as_user.photo_url is not None else '',
                 price=_price(prices, carry.persons, carry.small_packages, carry.medium_packages, carry.large_Packages),
                 date=ride.ride_date,
-                state= carry.state if ride.ride_date > datetime.now().date() else None,
+                state= carry.state if (ride.ride_date > datetime.now().date()) or (ride.ride_date == datetime.now().date() and ride.start_maximum_time > datetime.now().time()) else None,
                 space_persons=carry.persons,
                 space_small_package=carry.small_packages,
                 space_medium_package=carry.medium_packages,
