@@ -227,7 +227,7 @@ def create_chat(driver_id: str, user2_id: str, db: Session):
             ).first()
 
     if chat:
-        raise HTTPException(status_code=400, detail="Chat already exists")
+        return {"chat_id": chat.chat_id}
 
     chat = Chat(
         chat_id=str(uuid4()),
