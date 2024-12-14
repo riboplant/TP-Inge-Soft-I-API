@@ -15,6 +15,7 @@ from utils.locationIQAPI import get_distance_between, get_coordinates
 from utils.notifications import send_notification
 import traceback
 from services.users import get_cars
+import logging
 
 def _get_price_set(distance:float):
     load_dotenv()
@@ -810,9 +811,17 @@ def cancel_ride(ride_id: str, current_user, db):
 
     
     try:
+
+        for carry in db.query(Carrys).filter(Carrys.ride_id == ride_id).all():
+            db.delete(carry)
+        
+        for price in db.query(Prices).filter(Prices.ride_id == ride_id).all():
+            db.delete(price)
+            
         db.delete(ride)
         db.commit()
-    except:
+    except Exception as e:
+        logging.error(f"Error canceling ride: {str(e)}")
         raise HTTPException(status_code=500, detail="Error canceling ride")
     
     return JSONResponse(status_code=200, content={"message": "Ride canceled successfully"})
