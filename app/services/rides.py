@@ -810,6 +810,10 @@ def cancel_ride(ride_id: str, current_user, db):
 
     
     try:
+
+        for carry in db.query(Carrys).filter(Carrys.ride_id == ride_id).all():
+            db.delete(carry)
+            
         db.delete(ride)
         db.commit()
     except:
