@@ -814,6 +814,9 @@ def cancel_ride(ride_id: str, current_user, db):
 
         for carry in db.query(Carrys).filter(Carrys.ride_id == ride_id).all():
             db.delete(carry)
+        
+        for price in db.query(Prices).filter(Prices.ride_id == ride_id).all():
+            db.delete(price)
             
         db.delete(ride)
         db.commit()
