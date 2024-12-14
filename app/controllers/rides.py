@@ -90,3 +90,7 @@ async def start_ride(ride_id: str, current_user: User = Depends(get_current_acti
 @router.post("/finish/{ride_id}")
 async def finish_ride(ride_id: str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return rides.finish_ride(ride_id, current_user, db)
+
+@router.post("/cancel/{ride_id}")
+async def cancel_ride(ride_id: str, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return rides.cancel_ride(ride_id, current_user, db)

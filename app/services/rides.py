@@ -784,3 +784,35 @@ def finish_ride(ride_id: str, current_user, db):
         raise HTTPException(status_code=500, detail="Error finishing ride")
     
     return JSONResponse(status_code=200, content={"message": "Ride finished successfully"})
+
+def cancel_ride(ride_id: str, current_user, db):
+    ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
+    if not ride:
+        raise HTTPException(status_code=400, detail="Ride not found")
+    
+    driver = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first()
+    if driver.user_id != current_user.user_id:
+        raise HTTPException(status_code=401, detail="User is not the driver of the ride")
+    
+    if (ride.ride_date - datetime.now().date()).days < 1:
+        raise HTTPException(status_code=400, detail="Cannot cancel ride within 24 hours of start time")
+    
+    if ride.real_start_time is not None:
+        raise HTTPException(status_code=400, detail="Ride has already started")
+    
+    if ride.real_end_time is not None:
+        raise HTTPException(status_code=400, detail="Ride has already finished")
+    
+    carry = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.state == 'accepted').first()
+
+    if carry:
+        raise HTTPException(status_code=400, detail="Cannot cancel ride with accepted requests")
+
+    
+    try:
+        db.delete(ride)
+        db.commit()
+    except:
+        raise HTTPException(status_code=500, detail="Error canceling ride")
+    
+    return JSONResponse(status_code=200, content={"message": "Ride canceled successfully"})
