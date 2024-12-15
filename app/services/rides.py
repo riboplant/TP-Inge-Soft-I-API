@@ -44,7 +44,7 @@ def _get_price_set(distance:float):
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
     ridesToRet = []
 
-    now = timezone('America/Argentina/Buenos_Aires').localize(now)
+    now = timezone('America/Argentina/Buenos_Aires').localize(datetime.now())
     now_time = now.time().replace(microsecond=0)
     print(now_time)
     
