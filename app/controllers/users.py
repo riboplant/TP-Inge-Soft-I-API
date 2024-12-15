@@ -63,3 +63,7 @@ async def comment_driver(driver_id: str, ride_id: str, comment: str, rating: int
 @router.post("/comment/rider/{user_id}")
 async def comment_rider(user_id: str, ride_id: str, comment: str, rating: int, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return users.comment_rider(user_id, ride_id, comment, rating, current_user, db)
+
+@router.get("/driver/id")
+async def get_driver_id(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return users.get_driver_id(current_user, db)
