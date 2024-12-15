@@ -45,7 +45,7 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
     ridesToRet = []
 
     now = pytz.utc.localize(datetime.now())
-    now_time = now.time().replace(microsecond=0)
+    now_time = now.time().replace(microsecond=0).replace(tzinfo=pytz.UTC)
     print(now.date())
     print(now_time)
     
@@ -65,7 +65,7 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
 
     for ride in rides:
         print(ride.start_maximum_time > now_time)
-        
+
         driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
         driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
         priceSet = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
