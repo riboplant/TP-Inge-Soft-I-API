@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from uuid import uuid4
 import pytz
 from pytz import timezone
@@ -45,8 +45,8 @@ def _get_price_set(distance:float):
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
     ridesToRet = []
 
-    now = pytz.utc.localize(datetime.now())
-    now_time = now.time().replace(microsecond=0).replace(tzinfo=pytz.utc).astimezone(pytz.timezone('America/Argentina/Buenos_Aires'))
+    now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
+    now_time = now.time().replace(microsecond=0).replace(tzinfo=pytz.utc)
     print(now.date())
     print(now_time)
     
