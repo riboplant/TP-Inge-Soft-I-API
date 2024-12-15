@@ -42,6 +42,8 @@ def _get_price_set(distance:float):
 
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
     ridesToRet = []
+
+    now = datetime.now()
     
     rides = db.query(Rides).filter(
         Rides.city_from == city_from,
@@ -52,12 +54,14 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         Rides.available_space_small_package >= small_packages,
         Rides.available_space_people >= people,
         or_(
-            #and_(Rides.start_maximum_time > datetime.now().time(), Rides.ride_date == datetime.now().date()),
-            Rides.ride_date >= datetime.now().date()  
+            and_(Rides.start_maximum_time > now.time(), Rides.ride_date == now.date()),
+            Rides.ride_date > now.date()  
         )
     ).all() 
 
     for ride in rides:
+        print(ride.ride_date)
+        print(ride.start_maximum_time)
         driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
         driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
         priceSet = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
