@@ -95,9 +95,11 @@ async def get_payment(id: int, db: Session):
 
         db.commit()
         
-    except:
-        return 
-  
+    except Exception as e:
+        print("Error adding payment to the database")
+        print(e)
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Error adding payment to the database")
 
     return JSONResponse(status_code=200, content={"message": "Successfully added the payment"})
 
