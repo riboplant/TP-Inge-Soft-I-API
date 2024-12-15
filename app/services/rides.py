@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from uuid import uuid4
 import pytz
-from pytz import timezone, utc
+from pytz import timezone
 
 from decouple import config
 from dotenv import load_dotenv
@@ -9,6 +9,7 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
+from sqlalchemy.sql import func 
 
 from database.models import *
 from schemas.rides_schemas import *
@@ -57,7 +58,7 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         Rides.available_space_small_package >= small_packages,
         Rides.available_space_people >= people,
         or_(
-            and_(Rides.ride_date == now.date(), compare_time_strings(now_time, str(Rides.start_maximum_time)) == 1),
+            and_(Rides.ride_date == now.date(), func.time(Rides.start_maximum_time) > now_time),
             Rides.ride_date > now.date()  
         )
     ).all() 
