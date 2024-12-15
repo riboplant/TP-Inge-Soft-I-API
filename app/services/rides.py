@@ -9,8 +9,7 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
-from sqlalchemy.sql.expression import cast
-from sqlalchemy.sql.sqltypes import Time
+from dateutil import parser
 
 from database.models import *
 from schemas.rides_schemas import *
@@ -48,7 +47,6 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
 
     local_tz = timezone('America/Argentina/Buenos_Aires')
     now = datetime.now(local_tz)
-    now_time = now.time().replace(microsecond=0).strftime('%H:%M:%S')
     
     rides = db.query(Rides).filter(
         Rides.city_from == city_from,
@@ -59,16 +57,13 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         Rides.available_space_small_package >= small_packages,
         Rides.available_space_people >= people,
         or_(
-            and_(Rides.ride_date == now.date(), cast(Rides.start_maximum_time, Time) > now_time),
+            and_(Rides.ride_date == now.date(), parser.isoparse(Rides.start_maximum_time).time() > now.replace(tzinfo=local_tz).time()),
             Rides.ride_date > now.date()  
         )
     ).all() 
 
     for ride in rides:
-        print(ride.ride_date)
-        print(now.date())
-        print(cast(ride.start_maximum_time, Time).strftime('%H:%M:%S'))
-        print(now_time)
+        print(parser.isoparse(ride.start_maximum_time).time())
 
         driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
         driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
