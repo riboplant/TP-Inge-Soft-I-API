@@ -57,15 +57,15 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         Rides.available_space_small_package >= small_packages,
         Rides.available_space_people >= people,
         or_(
-            and_(Rides.ride_date == now.date(), Rides.start_maximum_time.replace > now_time),
+            and_(Rides.ride_date == now.date(), Rides.start_maximum_time > now_time),
             Rides.ride_date > now.date()  
         )
     ).all() 
 
     for ride in rides:
-        print(ride.start_maximum_time.replace)
+        print(ride.start_maximum_time)
         print(now_time)
-        print(ride.start_maximum_time.replace > now_time)
+        print(ride.start_maximum_time > now_time)
         print(True)
 
         driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
