@@ -67,8 +67,9 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
     for ride in rides:
         print(ride.ride_date)
         print(now.date())
-        print(ride.start_maximum_time)
+        print(cast(ride.start_maximum_time, Time))
         print(now_time)
+        print (cast(Rides.start_maximum_time, Time) > now_time)
 
         driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
         driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
