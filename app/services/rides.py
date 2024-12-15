@@ -9,7 +9,6 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
-from dateutil import parser
 
 from database.models import *
 from schemas.rides_schemas import *
@@ -45,8 +44,9 @@ def _get_price_set(distance:float):
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
     ridesToRet = []
 
-    local_tz = timezone('America/Argentina/Buenos_Aires')
+    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
     now = datetime.now(local_tz)
+    now_time = now.timetz().replace(microsecond=0)
     
     rides = db.query(Rides).filter(
         Rides.city_from == city_from,
@@ -57,13 +57,14 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         Rides.available_space_small_package >= small_packages,
         Rides.available_space_people >= people,
         or_(
-            and_(Rides.ride_date == now.date(), parser.isoparse(Rides.start_maximum_time).time() > now.replace(tzinfo=local_tz).time()),
+            and_(Rides.ride_date == now.date(), Rides.start_maximum_time > now_time),
             Rides.ride_date > now.date()  
         )
     ).all() 
 
     for ride in rides:
-        print(parser.isoparse(ride.start_maximum_time).time())
+        print(ride.start_maximum_time)
+        print(now_time)
 
         driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
         driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
