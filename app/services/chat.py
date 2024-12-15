@@ -118,7 +118,7 @@ async def chat(chat_id: str, user: User, websocket: WebSocket, db):
             data = await websocket.receive_text()
             if data == "":
                 continue
-            new_message = _add_message(data, user, chat_id, db)
+            new_message = await _add_message(data, user, chat_id, db)
             for connection in manager.active_connections:
                 if connection.chat_id == chat_id:
                     await manager.send_message(connection.websocket, new_message)
