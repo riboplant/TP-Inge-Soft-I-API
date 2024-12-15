@@ -275,3 +275,11 @@ def comment_rider(user_id: str, ride_id: str, comment: str, rating: int, current
         raise HTTPException(status_code=500, detail="Error adding comment")
     
     return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Comment added successfully"})
+
+
+
+def get_driver_id(current_user, db):
+    driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
+    if not driver:
+        raise HTTPException(status_code=404, detail="Driver not found")
+    return driver.driver_id
