@@ -43,12 +43,10 @@ def _get_price_set(distance:float):
 
 
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
-    ridesToRet = []
-
     now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
     now_time = now.time().replace(microsecond=0).replace(tzinfo=pytz.utc)
-    print(now.date())
-    print(now_time)
+
+    ridesToRet = []
     
     rides = db.query(Rides).filter(
         Rides.city_from == city_from,
@@ -65,8 +63,6 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
     ).all() 
 
     for ride in rides:
-        print(ride.start_maximum_time > now_time)
-
         driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
         driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
         priceSet = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
@@ -162,8 +158,7 @@ def create_ride(ride: RideCreate, price: PriceSet, plate: str, current_user, db)
 
 
 def history_driver( current_user, db):
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
+    now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
 
     rides_to_return = []
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
@@ -211,8 +206,7 @@ def history_driver( current_user, db):
     return rides_to_return
 
 def upcoming_driver( current_user, db):
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
+    now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
 
     rides_to_return = []
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
@@ -262,8 +256,7 @@ def upcoming_driver( current_user, db):
 
 
 def history_rider( current_user, db):
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
+    now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
 
     rides_to_return = []
    
@@ -298,8 +291,7 @@ def history_rider( current_user, db):
 
 
 def upcoming_rider( current_user, db):
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
+    now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
 
     rides_to_return = []
    
@@ -335,8 +327,7 @@ def upcoming_rider( current_user, db):
 
 
 def today_rider_driver( current_user, db):
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
+    now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
 
     rides_to_return = []
    
@@ -439,9 +430,8 @@ def get_ride_search_detail(ride_id, db):
 
 
 def get_rider_detail(ride_id, current_user, db):
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
-    now_time = now.time().replace(microsecond=0).strftime('%H:%M:%S')
+    now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
+    now_time = now.time().replace(microsecond=0).replace(tzinfo=pytz.utc)
      
     ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
     car = db.query(Vehicles).filter(Vehicles.plate == ride.car_plate).first()
@@ -645,8 +635,7 @@ async def join_ride(data: JoinRideData, user,db):
     return JSONResponse(status_code=200, content={"message": "Success"})
 
 async def leave_ride(ride_id, current_user, db):
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
+    now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
 
     carry = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.user_id == current_user.user_id).first()
     if not carry:
@@ -774,8 +763,7 @@ async def start_ride(ride_id: str, current_user, db):
 
     pendingCarrys = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.state == 'pending').all()
 
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
+    now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
 
     for carry in pendingCarrys:
         try:
@@ -796,8 +784,7 @@ async def start_ride(ride_id: str, current_user, db):
 
 
 def finish_ride(ride_id: str, current_user, db):
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
+    now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
     
     ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
     if not ride:
@@ -823,8 +810,7 @@ def finish_ride(ride_id: str, current_user, db):
     return JSONResponse(status_code=200, content={"message": "Ride finished successfully"})
 
 def cancel_ride(ride_id: str, current_user, db):
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
+    now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
 
     ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
     if not ride:
