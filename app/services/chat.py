@@ -15,7 +15,7 @@ class ConnectionItems:
         self.websocket = websocket
         self.chat_id = chat_id
 
-def _add_message(message: str, current_user, chat_id, db: Session):        
+async def _add_message(message: str, current_user, chat_id, db: Session):        
     buenos_aires_tz = timezone('America/Argentina/Buenos_Aires')
     current_time = datetime.now(buenos_aires_tz)
     
@@ -30,8 +30,8 @@ def _add_message(message: str, current_user, chat_id, db: Session):
     chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
 
     other_user_id = chat.user1_id if chat.user1_id != current_user.user_id else chat.user2_id
-    
-    send_notification(other_user_id, current_user.name , message)
+
+    await send_notification(other_user_id, current_user.name , message)
     
 
     try:
