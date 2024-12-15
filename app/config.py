@@ -18,7 +18,7 @@ class auth_settings():
 AuthSettings = auth_settings()
 
 class payment_settings():
-    MP_ACCESS_TOKEN = "APP_USR-7686432661144047-100418-13b2cf958ed1454b39644de07a8c765e-2018940061"
+    MP_ACCESS_TOKEN = "APP_USR-698825110753956-121416-a4d4647b9e65ed3ab37d32b5e5299088-237579851"
     
 PaymentSettings = payment_settings()
 
