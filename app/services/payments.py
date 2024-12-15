@@ -31,12 +31,16 @@ def create_payment(title:str, quantity:int, unit_price:float, metadata:json):
         preference_data = create_preference_data(title=title, quantity=quantity, unit_price=unit_price, text=metadata)
     except Exception as e:
         print("Something went wrong with the payment")
-        return None
-    
+        raise Exception(e)
 
-    preference_response = sdk.preference().create(preference_data)
-    preference = preference_response["response"]
-    link = preference["init_point"]
+    
+    try:
+        preference_response = sdk.preference().create(preference_data)
+        preference = preference_response["response"]
+        link = preference["init_point"]
+    except Exception as e:
+        print("Something went wrong with the payment")
+        raise Exception(e)
     # Esto es una url de mp a la que mandamos al usuario
     return {"link" : f"{link}"}
 
