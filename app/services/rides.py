@@ -783,7 +783,7 @@ async def start_ride(ride_id: str, current_user, db):
     return {"real_start_time": current_time}
 
 
-def finish_ride(ride_id: str, current_user, db):
+async def finish_ride(ride_id: str, current_user, db):
     now = pytz.utc.localize(datetime.now() - timedelta(hours=3))
     
     ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
@@ -800,6 +800,16 @@ def finish_ride(ride_id: str, current_user, db):
     if ride.real_end_time is not None:
         raise HTTPException(status_code=400, detail="Ride has already finished")
     
+    aceptedCarrys = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.state == 'accepted').all()
+
+    for carry in aceptedCarrys:
+        user = db.query(Users).filter(Users.user_id == carry.user_id).first()
+        try:
+            await send_notification(user.user_id, "Viaje iniciado!", "El viaje ha comenzado.")
+        except:
+            raise HTTPException(status_code=500, detail="Error sending notification")
+
+
     try:
         current_time = now.time()
         setattr(ride, 'real_end_time', current_time)

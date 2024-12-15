@@ -25,10 +25,9 @@ async def create_payment_for_ride(title:str, price:float, ride_id: str, current_
 @router.post("/owl")
 async def get_payment_info(request: Request, db: Session = Depends(get_db)):
     response = await request.json()
-    get_payment(int(response["data"]["id"]), db)
+    await get_payment(int(response["data"]["id"]), db)
     return Response(status_code=200)
-    # La clave secreta esta en un header, en x-signature-id
-    # No esta ese header en este momento
+    
 
 @router.post("/get_ride_payment")
 async def get_ride_payment_info(ride_id: str, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):

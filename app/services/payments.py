@@ -7,6 +7,7 @@ import mercadopago
 from database.models import *
 from sqlalchemy.orm import Session
 import json
+from utils.notifications import send_notification
 
 sdk = mercadopago.SDK(PaymentSettings.MP_ACCESS_TOKEN)
 
@@ -44,7 +45,7 @@ def create_payment(title:str, quantity:int, unit_price:float, metadata:json):
     # Esto es una url de mp a la que mandamos al usuario
     return {"link" : f"{link}"}
 
-def get_payment(id: int, db: Session):
+async def get_payment(id: int, db: Session):
     
     request = sdk.payment().get(id)
 
@@ -66,15 +67,13 @@ def get_payment(id: int, db: Session):
     metadata_dict = json.loads(metadata)
 
     carry = db.query(Carrys).filter(Carrys.user_id == metadata_dict["user_id"], Carrys.ride_id == metadata_dict["ride_id"]).first()
-
-    # if carry == None: #esto me hace ruido pero lo valido por las dudas
-    #     return HTTPException(status_code=404, detail="No ride found")
-
-    # if carry.payment_id != None:
-    #     return HTTPException(status_code=400, detail="Payment already processed")
     
-    
-        
+    driver_id = db.query(Rides).filter(Rides.ride_id == metadata_dict["ride_id"]).first().driver_id
+
+    driver_as_user_id = db.query(Drivers).filter(Drivers.driver_id == driver_id).first()
+
+    rider = db.query(Users).filter(Users.user_id == metadata_dict["user_id"]).first()
+
     payment_info = Payments(
         payment_id = str(id),
         amount = float(response["transaction_amount"]),
@@ -89,6 +88,7 @@ def get_payment(id: int, db: Session):
 
         if(response["status"] == "approved"):
             setattr(carry, "payment_id", str(id))
+            await send_notification(driver_as_user_id, "Recibiste un pago", f"{rider.name} ha pagado por el viaje!")
 
         db.commit()
         
