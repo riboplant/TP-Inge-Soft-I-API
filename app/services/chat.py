@@ -8,6 +8,7 @@ from schemas.rides_schemas import *
 from database.models import *
 from uuid import uuid4
 from schemas.users_schemas import User
+from utils.notifications import send_notification
 
 class ConnectionItems:
     def __init__(self, websocket: WebSocket, chat_id: str):
@@ -25,6 +26,13 @@ def _add_message(message: str, current_user, chat_id, db: Session):
         chat_id=chat_id,
         sent_at=current_time
     )
+
+    chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
+
+    other_user_id = chat.user1_id if chat.user1_id != current_user.user_id else chat.user2_id
+    
+    send_notification(other_user_id, current_user.name , message)
+    
 
     try:
         db.add(new_message)
