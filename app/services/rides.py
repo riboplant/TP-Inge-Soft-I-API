@@ -9,7 +9,8 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
-from sqlalchemy.sql import func 
+from sqlalchemy.sql.expression import cast
+from sqlalchemy.sql.sqltypes import Time
 
 from database.models import *
 from schemas.rides_schemas import *
@@ -58,7 +59,7 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         Rides.available_space_small_package >= small_packages,
         Rides.available_space_people >= people,
         or_(
-            and_(Rides.ride_date == now.date(), func.time(Rides.start_maximum_time) > now_time),
+            and_(Rides.ride_date == now.date(), cast(Rides.start_maximum_time, Time) > now_time),
             Rides.ride_date > now.date()  
         )
     ).all() 
