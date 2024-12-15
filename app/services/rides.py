@@ -352,6 +352,9 @@ def today_rider_driver( current_user, db):
     
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
 
+    if not driver:
+        return rides_to_return
+
     rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date == now.date(), Rides.real_end_time == None).all()
 
     for ride in rides:

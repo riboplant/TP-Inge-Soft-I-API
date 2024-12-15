@@ -45,8 +45,7 @@ def create_payment(title:str, quantity:int, unit_price:float, metadata:json):
     # Esto es una url de mp a la que mandamos al usuario
     return {"link" : f"{link}"}
 
-async def get_payment(id: int, db: Session):
-    
+async def get_payment(id: int, db: Session):   
     request = sdk.payment().get(id)
 
 
@@ -86,7 +85,9 @@ async def get_payment(id: int, db: Session):
         db.add(payment_info)
         db.commit()
 
+        print(response["status"])
         if(response["status"] == "approved"):
+            print("Payment approved")
             setattr(carry, "payment_id", str(id))
             await send_notification(driver_as_user_id, "Recibiste un pago", f"{rider.name} ha pagado por el viaje!")
 
