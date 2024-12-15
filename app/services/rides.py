@@ -57,16 +57,12 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         Rides.available_space_small_package >= small_packages,
         Rides.available_space_people >= people,
         or_(
-          #  and_(Rides.ride_date == now.date(), Rides.start_maximum_time > now_time),
+            and_(Rides.ride_date == now.date(), compare_time_strings(Rides.start_maximum_time.strftime('%H:%M:%S'), now_time) == 1),
             Rides.ride_date >= now.date()  
         )
     ).all() 
 
     for ride in rides:
-        print(ride.start_maximum_time.strftime('%H:%M:%S'))
-        print(now_time)
-        print(compare_time_strings(ride.start_maximum_time.strftime('%H:%M:%S'), "14:30:00"))
-
         driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
         driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
         priceSet = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
@@ -162,11 +158,14 @@ def create_ride(ride: RideCreate, price: PriceSet, plate: str, current_user, db)
 
 
 def history_driver( current_user, db):
+    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    now = datetime.now(local_tz)
+
     rides_to_return = []
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
         raise HTTPException(status_code=402, detail="User is not a driver")
-    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date <= datetime.now().date(), Rides.real_end_time != None).all()
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date <= now.date(), Rides.real_end_time != None).all()
     
     for ride in rides:
             prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
@@ -208,11 +207,14 @@ def history_driver( current_user, db):
     return rides_to_return
 
 def upcoming_driver( current_user, db):
+    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    now = datetime.now(local_tz)
+
     rides_to_return = []
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
     if not driver:
         raise HTTPException(status_code=402, detail="User is not a driver")
-    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date >= datetime.now().date(), Rides.real_end_time == None).all()
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date >= now.date(), Rides.real_end_time == None).all()
     
     for ride in rides:
             prices = db.query(Prices).filter(Prices.ride_id == ride.ride_id).first()
@@ -256,12 +258,15 @@ def upcoming_driver( current_user, db):
 
 
 def history_rider( current_user, db):
+    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    now = datetime.now(local_tz)
+
     rides_to_return = []
    
     carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id, Carrys.state == 'accepted').all()
     
     for carry in carrys:
-            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date <= datetime.now().date(), Rides.real_end_time != None).first()
+            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date <= now.date(), Rides.real_end_time != None).first()
             if ride is None:
                 continue
             
@@ -289,12 +294,15 @@ def history_rider( current_user, db):
 
 
 def upcoming_rider( current_user, db):
+    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    now = datetime.now(local_tz)
+
     rides_to_return = []
    
     carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id).all()
     
     for carry in carrys:
-            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date >= datetime.now().date(), Rides.real_end_time == None).first()
+            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date >= now.date(), Rides.real_end_time == None).first()
             if ride is None:
                 continue
             
@@ -323,12 +331,15 @@ def upcoming_rider( current_user, db):
 
 
 def today_rider_driver( current_user, db):
+    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    now = datetime.now(local_tz)
+
     rides_to_return = []
    
     carrys = db.query(Carrys).filter(Carrys.user_id == current_user.user_id, Carrys.state == 'accepted').all()
     
     for carry in carrys:
-            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date == datetime.now().date(), Rides.real_end_time == None).first()
+            ride = db.query(Rides).filter(Rides.ride_id == carry.ride_id, Rides.ride_date == now.date(), Rides.real_end_time == None).first()
             if ride is None:
                 continue
             
@@ -346,7 +357,7 @@ def today_rider_driver( current_user, db):
     
     driver = db.query(Drivers).filter(Drivers.user_id == current_user.user_id).first()
 
-    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date == datetime.now().date(), Rides.real_end_time == None).all()
+    rides = db.query(Rides).filter(Rides.driver_id == driver.driver_id, Rides.ride_date == now.date(), Rides.real_end_time == None).all()
 
     for ride in rides:
             carrys = db.query(Carrys).filter(Carrys.ride_id == ride.ride_id, Carrys.state == 'accepted').all()
@@ -424,6 +435,9 @@ def get_ride_search_detail(ride_id, db):
 
 
 def get_rider_detail(ride_id, current_user, db):
+    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    now = datetime.now(local_tz)
+    now_time = now.time().replace(microsecond=0).strftime('%H:%M:%S')
      
     ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
     car = db.query(Vehicles).filter(Vehicles.plate == ride.car_plate).first()
@@ -432,7 +446,7 @@ def get_rider_detail(ride_id, current_user, db):
     prices = db.query(Prices).filter(Prices.ride_id == ride_id).first()
 
     carry = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.user_id == current_user.user_id).first()
-    naive_now = datetime.now(pytz.UTC)
+ 
     ride_to_return = RideDetailUpcomingRider(
                 ride_id=ride.ride_id,
                 city_from=ride.city_from,
@@ -442,8 +456,8 @@ def get_rider_detail(ride_id, current_user, db):
                 price=_price(prices, carry.persons, carry.small_packages, carry.medium_packages, carry.large_Packages),
                 date=ride.ride_date,
                 state = carry.state if (
-                    ride.ride_date > naive_now.date() or 
-                    (ride.ride_date == naive_now.date() and ride.start_maximum_time.replace(tzinfo=None) > naive_now.time())
+                    ride.ride_date > now.date() or 
+                    (ride.ride_date == now.date() and compare_time_strings(ride.start_minimum_time.strftime('%H:%M:%S'), now_time) == 1)
                 ) else None,
                 space_persons=carry.persons,
                 space_small_package=carry.small_packages,
@@ -627,13 +641,16 @@ async def join_ride(data: JoinRideData, user,db):
     return JSONResponse(status_code=200, content={"message": "Success"})
 
 async def leave_ride(ride_id, current_user, db):
+    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    now = datetime.now(local_tz)
+
     carry = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.user_id == current_user.user_id).first()
     if not carry:
         raise HTTPException(status_code=400, detail="Request not found")
     
     ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
 
-    if (ride.ride_date - datetime.now().date()).days < 1:
+    if (ride.ride_date - now.date()).days < 1:
         raise HTTPException(status_code=400, detail="Cannot cancel ride within 24 hours of start time")
     
     if carry.payment_id is not None:
@@ -753,6 +770,9 @@ async def start_ride(ride_id: str, current_user, db):
 
     pendingCarrys = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.state == 'pending').all()
 
+    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    now = datetime.now(local_tz)
+
     for carry in pendingCarrys:
         try:
             setattr(carry, 'state', 'dismissed')
@@ -760,7 +780,7 @@ async def start_ride(ride_id: str, current_user, db):
         except:
             raise HTTPException(status_code=489, detail="Error updating request")
 
-    current_time = datetime.now().time()
+    current_time = now.time()
     try:
         setattr(ride, 'real_start_time', current_time)
         db.commit()
@@ -772,6 +792,9 @@ async def start_ride(ride_id: str, current_user, db):
 
 
 def finish_ride(ride_id: str, current_user, db):
+    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    now = datetime.now(local_tz)
+    
     ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
     if not ride:
         raise HTTPException(status_code=400, detail="Ride not found")
@@ -787,7 +810,7 @@ def finish_ride(ride_id: str, current_user, db):
         raise HTTPException(status_code=400, detail="Ride has already finished")
     
     try:
-        current_time = datetime.now().time()
+        current_time = now.time()
         setattr(ride, 'real_end_time', current_time)
         db.commit()
     except:
@@ -796,6 +819,9 @@ def finish_ride(ride_id: str, current_user, db):
     return JSONResponse(status_code=200, content={"message": "Ride finished successfully"})
 
 def cancel_ride(ride_id: str, current_user, db):
+    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    now = datetime.now(local_tz)
+
     ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
     if not ride:
         raise HTTPException(status_code=400, detail="Ride not found")
@@ -804,7 +830,7 @@ def cancel_ride(ride_id: str, current_user, db):
     if driver.user_id != current_user.user_id:
         raise HTTPException(status_code=401, detail="User is not the driver of the ride")
     
-    if (ride.ride_date - datetime.now().date()).days < 1:
+    if (ride.ride_date - now.date()).days < 1:
         raise HTTPException(status_code=400, detail="Cannot cancel ride within 24 hours of start time")
     
     if ride.real_start_time is not None:
