@@ -88,7 +88,9 @@ async def get_payment(id: int, db: Session):
         print(response["status"])
         if(response["status"] == "approved"):
             print("Payment approved")
-            setattr(carry, "payment_id", str(id))
+            await setattr(carry, "payment_id", str(id))
+            print(driver_as_user_id)
+            print(rider.name)
             await send_notification(driver_as_user_id, "Recibiste un pago", f"{rider.name} ha pagado por el viaje!")
 
         db.commit()
