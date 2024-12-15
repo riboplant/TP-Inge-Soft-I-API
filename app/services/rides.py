@@ -47,7 +47,7 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
 
     local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
     now = pytz.utc.localize(datetime.now(local_tz))
-    now_time = now.time().replace(microsecond=0).replace(tzinfo=ZoneInfo(key='America/Argentina/Buenos_Aires'))
+    now_time = now.time().replace(microsecond=0)
     print(now.date())
     print(now_time)
     
