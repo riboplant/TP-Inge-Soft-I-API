@@ -2,6 +2,7 @@ from datetime import date, datetime
 from uuid import uuid4
 import pytz
 from pytz import timezone
+from time import tzname
 
 from decouple import config
 from dotenv import load_dotenv
@@ -44,7 +45,7 @@ def _get_price_set(distance:float):
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
     ridesToRet = []
 
-    now = timezone('America/Argentina/Buenos_Aires').localize(datetime.now())
+    now = timezone(tzname[0]).localize(datetime.now())
     now_time = now.time().replace(microsecond=0)
     print(now_time)
     
