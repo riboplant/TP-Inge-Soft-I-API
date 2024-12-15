@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from uuid import uuid4
 import pytz
+from pytz import timezone, utc
 
 from decouple import config
 from dotenv import load_dotenv
@@ -43,7 +44,8 @@ def _get_price_set(distance:float):
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
     ridesToRet = []
 
-    now = datetime.now()
+    local_tz = timezone('America/Argentina/Buenos_Aires')
+    now = datetime.now(local_tz)
     
     rides = db.query(Rides).filter(
         Rides.city_from == city_from,
@@ -54,7 +56,7 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         Rides.available_space_small_package >= small_packages,
         Rides.available_space_people >= people,
         or_(
-            and_(Rides.start_maximum_time > now.time(), Rides.ride_date == now.date()),
+            and_(Rides.start_maximum_time.astimezone(local_tz).replace(microsecond=0) > now.time().replace(microsecond=0), Rides.ride_date == now.date()),
             Rides.ride_date > now.date()  
         )
     ).all() 
