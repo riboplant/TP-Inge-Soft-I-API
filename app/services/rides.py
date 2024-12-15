@@ -46,6 +46,7 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
 
     local_tz = timezone('America/Argentina/Buenos_Aires')
     now = datetime.now(local_tz)
+    now_time = now.time().replace(microsecond=0)
     
     rides = db.query(Rides).filter(
         Rides.city_from == city_from,
@@ -56,7 +57,7 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         Rides.available_space_small_package >= small_packages,
         Rides.available_space_people >= people,
         or_(
-            and_(Rides.start_maximum_time.astimezone(local_tz).replace(microsecond=0) > now.time().replace(microsecond=0), Rides.ride_date == now.date()),
+            and_(Rides.ride_date == now.date(), compare_time_strings(now_time, Rides.start_maximum_time) == 1),
             Rides.ride_date > now.date()  
         )
     ).all() 
@@ -65,7 +66,7 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         print(ride.ride_date)
         print(now.date())
         print(ride.start_maximum_time)
-        print(now.time())
+        print(now_time)
 
         driver_user_id = db.query(Drivers).filter(Drivers.driver_id == ride.driver_id).first().user_id
         driver_as_user = db.query(Users).filter(Users.user_id == driver_user_id).first()
@@ -834,3 +835,42 @@ def cancel_ride(ride_id: str, current_user, db):
         raise HTTPException(status_code=500, detail="Error canceling ride")
     
     return JSONResponse(status_code=200, content={"message": "Ride canceled successfully"})
+
+
+def compare_time_strings(time1: str, time2: str) -> int:
+    """
+    Compara dos tiempos en formato 'HH:MM:SS' (los primeros 8 caracteres del string).
+    
+    Args:
+        time1 (str): Primer tiempo como string.
+        time2 (str): Segundo tiempo como string.
+    
+    Returns:
+        int: 
+            - 1 si time1 > time2
+            - -1 si time1 < time2
+            - 0 si time1 == time2
+    """
+    # Quedarse con los primeros 8 caracteres
+    time1 = time1[:8]
+    time2 = time2[:8]
+    
+    # Separar por ":"
+    h1, m1, s1 = map(int, time1.split(":"))
+    h2, m2, s2 = map(int, time2.split(":"))
+    
+    # Comparar horas, minutos y segundos
+    if h1 > h2:
+        return 1
+    elif h1 < h2:
+        return -1
+    elif m1 > m2:
+        return 1
+    elif m1 < m2:
+        return -1
+    elif s1 > s2:
+        return 1
+    elif s1 < s2:
+        return -1
+    else:
+        return 0
