@@ -44,9 +44,9 @@ def _get_price_set(distance:float):
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
     ridesToRet = []
 
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
-    now_time = now.time().replace(microsecond=0).strftime('%H:%M:%S')
+    now = timezone('America/Argentina/Buenos_Aires').localize(now)
+    now_time = now.time().replace(microsecond=0)
+    print(now_time)
     
     rides = db.query(Rides).filter(
         Rides.city_from == city_from,
@@ -57,7 +57,7 @@ def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, 
         Rides.available_space_small_package >= small_packages,
         Rides.available_space_people >= people,
         or_(
-            and_(Rides.ride_date == now.date(), compare_time_strings(Rides.start_maximum_time.strftime('%H:%M:%S'), now_time) == 1),
+            and_(Rides.ride_date == now.date(), Rides.start_maximum_time > now_time),
             Rides.ride_date >= now.date()  
         )
     ).all() 
