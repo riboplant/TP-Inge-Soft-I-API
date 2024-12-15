@@ -45,9 +45,8 @@ def _get_price_set(distance:float):
 def get_ride(city_from, city_to, date, people,small_packages,  medium_packages, large_packages, db):
     ridesToRet = []
 
-    local_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    now = datetime.now(local_tz)
-    now_time = now.time().replace(microsecond=0).replace(tzinfo=ZoneInfo('America/Argentina/Buenos_Aires'))
+    now = pytz.utc.localize(datetime.now())
+    now_time = now.time().replace(microsecond=0).replace(tzinfo=pytz.utc).astimezone(pytz.timezone('America/Argentina/Buenos_Aires'))
     print(now.date())
     print(now_time)
     
