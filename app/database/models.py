@@ -112,7 +112,7 @@ class Carrys(Base):
 
     ride_id = Column(String, nullable=False, index=True)
     user_id = Column(String, nullable=False)
-    payment_id = Column(String, nullable=False)
+    payment_id = Column(String)
     persons = Column(Integer)
     small_packages = Column(Integer)
     medium_packages = Column(Integer)

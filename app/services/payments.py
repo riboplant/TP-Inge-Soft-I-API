@@ -31,12 +31,16 @@ def create_payment(title:str, quantity:int, unit_price:float, metadata:json):
         preference_data = create_preference_data(title=title, quantity=quantity, unit_price=unit_price, text=metadata)
     except Exception as e:
         print("Something went wrong with the payment")
-        return None
-    
+        raise Exception(e)
 
-    preference_response = sdk.preference().create(preference_data)
-    preference = preference_response["response"]
-    link = preference["init_point"]
+    
+    try:
+        preference_response = sdk.preference().create(preference_data)
+        preference = preference_response["response"]
+        link = preference["init_point"]
+    except Exception as e:
+        print("Something went wrong with the payment")
+        raise Exception(e)
     # Esto es una url de mp a la que mandamos al usuario
     return {"link" : f"{link}"}
 
@@ -94,13 +98,14 @@ def get_payment(id: int, db: Session):
 
     return JSONResponse(status_code=200, content={"message": "Successfully added the payment"})
 
-def get_ride_payment(ride_id: str, db: Session):
+def get_ride_payment(ride_id: str, user_id: str, db: Session):
     ride = db.query(Rides).filter(Rides.ride_id == ride_id).first()
     if ride == None:
         return {"Error": "Not ride with that id"}
     
-    payment = db.query(Payments).filter(Payments.ride_id == ride_id).first()
+    carry = db.query(Carrys).filter(Carrys.ride_id == ride_id, Carrys.user_id == user_id).first()
+    payment = db.query(Payments).filter(Payments.payment_id == carry.payment_id).first()
     if payment == None:
-        return {"Error": "Not payment for thay ride"}
+        raise Exception("Not payment for thay ride")
     
     return {"payment_id": f"{payment.payment_id}"}

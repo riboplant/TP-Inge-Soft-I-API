@@ -30,3 +30,6 @@ async def get_payment_info(request: Request, db: Session = Depends(get_db)):
     # La clave secreta esta en un header, en x-signature-id
     # No esta ese header en este momento
 
+@router.post("/get_ride_payment")
+async def get_ride_payment_info(ride_id: str, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return get_ride_payment(ride_id, current_user, db)
