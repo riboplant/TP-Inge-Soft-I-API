@@ -451,7 +451,7 @@ def get_rider_detail(ride_id, current_user, db):
                 date=ride.ride_date,
                 state = carry.state if (
                     ride.ride_date > now.date() or 
-                    (ride.ride_date == now.date() and compare_time_strings(ride.start_minimum_time.strftime('%H:%M:%S'), now_time) == 1)
+                    (ride.ride_date == now.date() and ride.start_maximum_time > now_time)
                 ) else None,
                 space_persons=carry.persons,
                 space_small_package=carry.small_packages,
@@ -850,42 +850,3 @@ def cancel_ride(ride_id: str, current_user, db):
         raise HTTPException(status_code=500, detail="Error canceling ride")
     
     return JSONResponse(status_code=200, content={"message": "Ride canceled successfully"})
-
-
-def compare_time_strings(time1: str, time2: str) -> int:
-    """
-    Compara dos tiempos en formato 'HH:MM:SS' (los primeros 8 caracteres del string).
-    
-    Args:
-        time1 (str): Primer tiempo como string.
-        time2 (str): Segundo tiempo como string.
-    
-    Returns:
-        int: 
-            - 1 si time1 > time2
-            - -1 si time1 < time2
-            - 0 si time1 == time2
-    """
-    # Quedarse con los primeros 8 caracteres
-    time1 = time1[:8]
-    time2 = time2[:8]
-    
-    # Separar por ":"
-    h1, m1, s1 = map(int, time1.split(":"))
-    h2, m2, s2 = map(int, time2.split(":"))
-    
-    # Comparar horas, minutos y segundos
-    if h1 > h2:
-        return 1
-    elif h1 < h2:
-        return -1
-    elif m1 > m2:
-        return 1
-    elif m1 < m2:
-        return -1
-    elif s1 > s2:
-        return 1
-    elif s1 < s2:
-        return -1
-    else:
-        return 0
