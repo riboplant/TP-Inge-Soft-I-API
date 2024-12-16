@@ -113,9 +113,6 @@ async def chat(chat_id: str, user: User, websocket: WebSocket, db):
             data = await websocket.receive_text()
             if data == "":
                 continue
-            
-            
-           
 
             new_message = await _add_message(data, user, chat_id, db)
 
@@ -127,7 +124,7 @@ async def chat(chat_id: str, user: User, websocket: WebSocket, db):
             chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
 
             other_user_id = chat.user1_id if chat.user1_id != user.user_id else chat.user2_id
-            if active_connections_count > 1:
+            if active_connections_count == 1:
                 await send_notification(other_user_id, user.name , data)
            
     except WebSocketDisconnect:
