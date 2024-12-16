@@ -95,6 +95,7 @@ class UserForListOfRiders(BaseModel):
     name: str
     photo_url: str
     chat_id: str
+    paid: Optional[bool] = False
 
 
 

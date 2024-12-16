@@ -502,7 +502,8 @@ def get_driver_detail(ride_id,current_user, db):
             user_id=user.user_id,
             name=user.name,
             photo_url=user.photo_url if user.photo_url is not None else '',
-            chat_id=chat.chat_id if chat is not None else ''
+            chat_id=chat.chat_id if chat is not None else '',
+            paid=carry.payment_id is not None
         ))
     
     ride_to_return = RideDetailUpcomingDriver(
