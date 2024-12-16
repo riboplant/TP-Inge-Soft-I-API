@@ -93,7 +93,7 @@ async def get_payment(id: int, db: Session):
             
             await send_notification(driver_as_user_id, "Recibiste un pago", f"{rider.name} ha pagado por el viaje!")
 
-            setattr(carry, "payment_id", "cora")
+            setattr(carry, "payment_id", str(id))
             db.commit()
     except Exception as e:
         print(e)
