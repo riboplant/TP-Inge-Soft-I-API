@@ -20,7 +20,8 @@ async def create_payment_for_ride(title:str, price:float, ride_id: str, current_
         "user_id": current_user.user_id
     }
     metadata_str = json.dumps(metadata)
-    return create_payment(title=title, quantity=1, unit_price=price, metadata=metadata_str)
+
+    return create_payment(title=title, quantity=1, unit_price = (price*0.2), metadata=metadata_str)
 
 @router.post("/owl")
 async def get_payment_info(request: Request, db: Session = Depends(get_db)):
