@@ -69,7 +69,7 @@ async def get_payment(id: int, db: Session):
     
     driver_id = db.query(Rides).filter(Rides.ride_id == metadata_dict["ride_id"]).first().driver_id
 
-    driver_as_user_id = db.query(Drivers).filter(Drivers.driver_id == driver_id).first()
+    driver_as_user_id = db.query(Drivers).filter(Drivers.driver_id == driver_id).first().user_id
 
     rider = db.query(Users).filter(Users.user_id == metadata_dict["user_id"]).first()
 
@@ -82,19 +82,19 @@ async def get_payment(id: int, db: Session):
     )
 
     try:
-        db.add(payment_info)
-        db.commit()
+        await db.add(payment_info)
+        await db.commit()
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=499, detail="Error adding payment to the database")
 
-        print(response["status"])
+    try:
         if(response["status"] == "approved"):
-            print("Payment approved")
-            setattr(carry, "payment_id", str(id))
-            print(driver_as_user_id)
-            print(rider.name)
+            
             await send_notification(driver_as_user_id, "Recibiste un pago", f"{rider.name} ha pagado por el viaje!")
 
-        db.commit()
-        
+            setattr(carry, "payment_id", "cora")
+            db.commit()
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail="Error adding payment to the database")
