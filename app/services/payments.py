@@ -82,8 +82,8 @@ async def get_payment(id: int, db: Session):
     )
 
     try:
-        await db.add(payment_info)
-        await db.commit()
+        db.add(payment_info)
+        db.commit()
     except Exception as e:
         print(e)
         raise HTTPException(status_code=499, detail="Error adding payment to the database")
