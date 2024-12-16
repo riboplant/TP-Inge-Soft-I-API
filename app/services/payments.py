@@ -88,7 +88,7 @@ async def get_payment(id: int, db: Session):
         print(response["status"])
         if(response["status"] == "approved"):
             print("Payment approved")
-            await setattr(carry, "payment_id", str(id))
+            setattr(carry, "payment_id", str(id))
             print(driver_as_user_id)
             print(rider.name)
             await send_notification(driver_as_user_id, "Recibiste un pago", f"{rider.name} ha pagado por el viaje!")
@@ -96,9 +96,7 @@ async def get_payment(id: int, db: Session):
         db.commit()
         
     except Exception as e:
-        print("Error adding payment to the database")
         print(e)
-        db.rollback()
         raise HTTPException(status_code=500, detail="Error adding payment to the database")
 
     return JSONResponse(status_code=200, content={"message": "Successfully added the payment"})
