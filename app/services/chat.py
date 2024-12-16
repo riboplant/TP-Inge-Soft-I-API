@@ -31,8 +31,7 @@ async def _add_message(message: str, current_user, chat_id, db: Session):
 
     other_user_id = chat.user1_id if chat.user1_id != current_user.user_id else chat.user2_id
 
-    await send_notification(other_user_id, current_user.name , message)
-    
+    send_notification(other_user_id, current_user.name , message)
 
     try:
         db.add(new_message)
@@ -118,11 +117,14 @@ async def chat(chat_id: str, user: User, websocket: WebSocket, db):
             data = await websocket.receive_text()
             if data == "":
                 continue
+            
             new_message = await _add_message(data, user, chat_id, db)
+
             for connection in manager.active_connections:
                 if connection.chat_id == chat_id:
                     await manager.send_message(connection.websocket, new_message)
-            
+                    
+           
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
