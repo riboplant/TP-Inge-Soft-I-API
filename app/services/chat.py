@@ -118,6 +118,7 @@ async def chat(chat_id: str, user: User, websocket: WebSocket, db):
 
             for connection in manager.active_connections:
                 if connection.chat_id == chat_id:
+                    print("Sending message to")
                     await manager.send_message(connection.websocket, new_message)
                     
             active_connections_count = sum(1 for connection in manager.active_connections if connection.chat_id == chat_id)
