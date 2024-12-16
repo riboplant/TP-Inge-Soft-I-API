@@ -27,11 +27,7 @@ async def _add_message(message: str, current_user, chat_id, db: Session):
         sent_at=current_time
     )
 
-    chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
-
-    other_user_id = chat.user1_id if chat.user1_id != current_user.user_id else chat.user2_id
-
-    send_notification(other_user_id, current_user.name , message)
+ 
 
     try:
         db.add(new_message)
@@ -118,12 +114,21 @@ async def chat(chat_id: str, user: User, websocket: WebSocket, db):
             if data == "":
                 continue
             
+            
+           
+
             new_message = await _add_message(data, user, chat_id, db)
 
             for connection in manager.active_connections:
                 if connection.chat_id == chat_id:
                     await manager.send_message(connection.websocket, new_message)
                     
+            active_connections_count = sum(1 for connection in manager.active_connections if connection.chat_id == chat_id)
+            chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
+
+            other_user_id = chat.user1_id if chat.user1_id != user.user_id else chat.user2_id
+            if active_connections_count > 1:
+                await send_notification(other_user_id, user.name , data)
            
     except WebSocketDisconnect:
         manager.disconnect(websocket)
